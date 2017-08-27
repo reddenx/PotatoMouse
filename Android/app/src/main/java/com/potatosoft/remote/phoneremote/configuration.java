@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.net.InetAddress;
 
 public class configuration extends Activity {
@@ -44,6 +45,12 @@ public class configuration extends Activity {
     }
 
     public void Button_Connect_OnClick(View view) {
+        try {
+            Udp.Point("192.168.10.3");
+            Udp.Send("test");
+        }
+        catch (IOException e) {
 
+        }
     }
 }
