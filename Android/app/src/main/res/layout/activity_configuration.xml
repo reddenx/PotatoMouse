@@ -9,66 +9,62 @@
     <Button
         android:id="@+id/button"
         android:layout_width="98dp"
-        android:layout_height="45dp"
-        android:layout_marginRight="8dp"
+        android:layout_height="48dp"
+        android:onClick="Button_Connect_OnClick"
         android:text="Connect"
-        app:layout_constraintBaseline_toBaselineOf="@+id/editText"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_editor_absoluteX="278dp"
-        tools:layout_editor_absoluteY="82dp" />
+        android:layout_marginStart="48dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintVertical_bias="0.395"
+        tools:layout_editor_absoluteX="16dp" />
 
     <EditText
         android:id="@+id/editText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:ems="10"
         android:inputType="textPersonName"
         android:text="Hostname"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/button"
-        tools:layout_editor_absoluteY="80dp" />
+        android:layout_marginStart="16dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/button"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/button"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintHorizontal_bias="0.282" />
 
     <Button
         android:id="@+id/button2"
         android:layout_width="311dp"
         android:layout_height="52dp"
+        android:onClick="Button_Refresh_OnClick"
+        android:text="No Source Found Yet (Refresh)"
         android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:text="No Source Found Yet"
         app:layout_constraintBottom_toTopOf="@+id/editText"
-        app:layout_constraintHorizontal_bias="0.508"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="@android:style/Widget.DeviceDefault.Light.ProgressBar"
-        android:layout_width="140dp"
-        android:layout_height="143dp"
-        android:layout_marginBottom="157dp"
-        android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
         android:text="ErrorText"
         android:textAlignment="center"
         android:textColor="@android:color/holo_red_dark"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/progressBar"
+        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@+id/editText"
-        tools:layout_editor_absoluteX="163dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="@+id/editText"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="@+id/editText" />
+
 </android.support.constraint.ConstraintLayout>
