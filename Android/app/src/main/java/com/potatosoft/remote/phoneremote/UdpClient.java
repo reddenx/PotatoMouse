@@ -10,7 +10,7 @@ import java.util.Vector;
  * Created by seanm_000 on 8/27/2017.
  */
 
-public class Networking {
+public class UdpClient {
 
     private int Port;
     private String Hostname;
@@ -18,7 +18,7 @@ public class Networking {
     private boolean Disposed;
     private Thread ListenLoopThread;
 
-    public Networking(int port) {
+    public UdpClient(int port) {
         Port = port;
         LastMessage = "";
         Hostname = "";
@@ -45,10 +45,10 @@ public class Networking {
     public void StopListening() {
         if(ListenLoopThread == null)
             return;
-        ListenLoopThread.stop();
+        ListenLoopThread.stop(); //the stop is acceptable in this instance
     }
 
-    public void Point(String hostname) {
+    public void Target(String hostname) {
         Hostname = hostname;
     }
 

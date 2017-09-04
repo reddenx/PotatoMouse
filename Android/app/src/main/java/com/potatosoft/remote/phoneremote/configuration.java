@@ -1,6 +1,7 @@
 package com.potatosoft.remote.phoneremote;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -8,11 +9,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.net.InetAddress;
 
 public class configuration extends Activity {
 
-    private Networking Udp;
+    private UdpClient Udp;
     private String CurrentEndpoint;
 
     private Button RefreshButton;
@@ -20,11 +20,14 @@ public class configuration extends Activity {
     private TextView ErrorText;
     private EditText HostnameEditText;
 
+    private final int PORT = 37015;
+    private final String HOSTNAME = "192.168.10.3";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_configuration);
-        Udp = new Networking(37015);
+        setContentView(R.layout.activity_configuration) ;
+        Udp = new UdpClient(PORT);
 
         RefreshButton = (Button)findViewById(R.id.button2);
         ConnectButton = (Button)findViewById(R.id.button);
@@ -45,12 +48,10 @@ public class configuration extends Activity {
     }
 
     public void Button_Connect_OnClick(View view) {
-        try {
-            Udp.Point("192.168.10.3");
-            Udp.Send("test");
-        }
-        catch (IOException e) {
+        Intent intent = new Intent(this, MousepadProto.class);
+        intent.putExtra(MousepadProto.INTENT_KEY_CONNECTION_HOSTNAME, HOSTNAME);
+        intent.putExtra(MousepadProto.INTENT_KEY_CONNECTION_PORT, PORT);
 
-        }
+        startActivity(intent);
     }
 }
