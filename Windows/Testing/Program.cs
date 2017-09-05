@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PR.Emulation.Mouse;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -13,7 +14,25 @@ namespace Testing
     {
         static void Main(string[] args)
         {
-            RunBroadcastTest();
+            RunJoysticMouseTest();
+            //RunBroadcastTest();
+        }
+
+        private static void RunJoysticMouseTest()
+        {
+            var joystic = new MouseJoystic();
+            //joystic.SetJoysticState(new JoysticState() { X = 1, Y = 1 }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = 0, Y = -1 }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = -1, Y = 1 }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = 0, Y = -1 }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = 2, Y = 0 }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = -2, Y = 0 }); Thread.Sleep(500);
+
+            Thread.Sleep(2000);
+            joystic.LeftDoubleClick();
+            Thread.Sleep(1000);
+
+            Console.ReadLine();
         }
 
         private static void RunBroadcastTest()
