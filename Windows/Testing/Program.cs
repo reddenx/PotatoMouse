@@ -14,23 +14,33 @@ namespace Testing
     {
         static void Main(string[] args)
         {
-            RunJoysticMouseTest();
-            //RunBroadcastTest();
+            //RunJoysticMouseTest();
+            RunBroadcastTest();
         }
 
         private static void RunJoysticMouseTest()
         {
+            // x right, y down
             var joystic = new MouseJoystic();
-            //joystic.SetJoysticState(new JoysticState() { X = 1, Y = 1 }); Thread.Sleep(500);
-            //joystic.SetJoysticState(new JoysticState() { X = 0, Y = -1 }); Thread.Sleep(500);
-            //joystic.SetJoysticState(new JoysticState() { X = -1, Y = 1 }); Thread.Sleep(500);
-            //joystic.SetJoysticState(new JoysticState() { X = 0, Y = -1 }); Thread.Sleep(500);
-            //joystic.SetJoysticState(new JoysticState() { X = 2, Y = 0 }); Thread.Sleep(500);
-            //joystic.SetJoysticState(new JoysticState() { X = -2, Y = 0 }); Thread.Sleep(500);
 
-            Thread.Sleep(2000);
-            joystic.LeftDoubleClick();
-            Thread.Sleep(1000);
+            joystic.SetJoysticState(new JoysticState() { X = .5f, Y = 1 }); Thread.Sleep(500);
+            joystic.SetJoysticState(new JoysticState() { X = 1, Y = -.5f }); Thread.Sleep(500);
+            joystic.SetJoysticState(new JoysticState() { X = -.5f, Y = -1 }); Thread.Sleep(500);
+            joystic.SetJoysticState(new JoysticState() { X = -1, Y = .5f }); Thread.Sleep(500);
+
+            joystic.SetJoysticState(new JoysticState() { X = .5f, Y = 1 }); Thread.Sleep(500);
+            joystic.SetJoysticState(new JoysticState() { X = 1, Y = -.5f }); Thread.Sleep(500);
+            joystic.SetJoysticState(new JoysticState() { X = -.5f, Y = -1 }); Thread.Sleep(500);
+            joystic.SetJoysticState(new JoysticState() { X = -1, Y = .5f }); Thread.Sleep(500);
+
+            joystic.SetJoysticState(new JoysticState() { X = 2, Y = 0 }); Thread.Sleep(500);
+            joystic.SetJoysticState(new JoysticState() { X = -2, Y = 0 }); Thread.Sleep(500);
+
+            joystic.SetJoysticState(new JoysticState() { X = 0, Y = 0 });
+
+            //Thread.Sleep(2000);
+            //joystic.LeftDoubleClick();
+            //Thread.Sleep(1000);
 
             Console.ReadLine();
         }
@@ -63,9 +73,7 @@ namespace Testing
 
                 // "yyyy'-'MM'-'dd HH':'mm':'ss'Z'"
 
-                Console.WriteLine("message-{1}: {0}", message, DateTime.Now.ToString(
-                    "HH:mm ss.ff"
-                ));
+                Console.WriteLine($"message-{message}:{referenceEndpoint.Address.ToString()} {DateTime.Now.ToString("HH:mm ss.ff")}");
             }
         }
 

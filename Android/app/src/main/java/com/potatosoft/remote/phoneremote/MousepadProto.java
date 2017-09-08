@@ -12,8 +12,9 @@ public class MousepadProto extends Activity {
     public static final String INTENT_KEY_CONNECTION_HOSTNAME = "com.potatosoft.remote.phoneremote.hostname";
     public static final String INTENT_KEY_CONNECTION_PORT = "com.potatosoft.remote.phoneremote.port";
 
-    private int Port = -1;
+    private int Port = 37015;
     private String Hostname;
+    private UdpClient Udp;
 
     private Button Button_LeftClick;
     private Button Button_RightClick;
@@ -37,6 +38,9 @@ public class MousepadProto extends Activity {
         Button_MouseNub = (Button)findViewById(R.id.button_mouse_nub);
 
         Button_MouseNub.setOnTouchListener(NubClickListener);
+
+        Udp = new UdpClient(Port);
+        Udp.Target(Hostname);
     }
 
     public void Button_LeftClick_OnClick(View view) {

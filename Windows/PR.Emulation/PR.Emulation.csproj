@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Mouse\LoopedMouseEventBase.cs" />
     <Compile Include="Mouse\MouseJoystic.cs" />
     <Compile Include="Mouse\Mousepad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -69,6 +69,7 @@ public class UdpClient {
     {
         try {
             DatagramSocket socket = new DatagramSocket(Port);
+            socket.setBroadcast(true);
             byte[] buffer = new byte[1024];
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 
