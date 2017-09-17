@@ -53,7 +53,7 @@ namespace Testing
             var myHostnameBytes = ASCIIEncoding.ASCII.GetBytes(myHostname.ToString());
             int port = 37015;
 
-            var endpoint = new IPEndPoint(myHostname, port);
+            var endpoint = new IPEndPoint(IPAddress.Broadcast, port);
 
             Fork(() =>
             {

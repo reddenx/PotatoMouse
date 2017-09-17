@@ -12,13 +12,21 @@
         android:layout_height="48dp"
         android:onClick="Button_Connect_OnClick"
         android:text="Connect"
-        android:layout_marginStart="48dp"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintVertical_bias="0.395"
-        tools:layout_editor_absoluteX="16dp" />
+        app:layout_constraintVertical_bias="0.395"/>
+
+    <Button
+        android:id="@+id/button_connect_found"
+        android:layout_height="48dp"
+        android:layout_width="0dp"
+        android:text="connect"
+        app:layout_constraintTop_toBottomOf="@id/button"
+        app:layout_constraintLeft_toLeftOf="@id/button"
+        app:layout_constraintRight_toRightOf="@id/button"
+        android:onClick="Button_Connect_Found_OnClick" />
+
+
 
     <EditText
         android:id="@+id/editText"
@@ -66,5 +74,17 @@
         app:layout_constraintRight_toRightOf="@+id/editText"
         android:layout_marginLeft="8dp"
         app:layout_constraintLeft_toLeftOf="@+id/editText" />
+
+    <TextView
+        android:id="@+id/text_connection_found"
+        android:layout_height="48dp"
+        android:layout_width="0dp"
+        android:textSize="32dp"
+        android:textAlignment="center"
+        android:text="NOT FOUND"
+        app:layout_constraintTop_toBottomOf="@id/editText"
+        app:layout_constraintLeft_toLeftOf="@id/editText"
+        app:layout_constraintRight_toRightOf="@id/editText" />
+
 
 </android.support.constraint.ConstraintLayout>

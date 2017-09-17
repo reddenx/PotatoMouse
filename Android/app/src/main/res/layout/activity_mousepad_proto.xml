@@ -64,9 +64,7 @@
         android:text="left click"
         android:gravity="center|bottom"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintVertical_bias="1.0"
-        android:onClick=""
-        />
+        app:layout_constraintVertical_bias="1.0" />
 
     <Button
         android:id="@+id/button_right_click"
