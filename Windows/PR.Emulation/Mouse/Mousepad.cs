@@ -12,12 +12,7 @@ namespace PR.Emulation.Mouse
         private Vector2 LastPosition;
         private Vector2 CarryOver;
 
-
-
-        public Mousepad()
-        {
-
-        }
+        public Mousepad() { }
 
         protected override void DoScheduledMovementEvents()
         {
