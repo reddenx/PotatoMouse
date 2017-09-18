@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PR.Networking
+namespace PR.Presentation.TargetClient
 {
-    internal static class Parrellelism
+    internal static class Parallelism
     {
         public static Thread Fork(Action action)
         {

@@ -28,7 +28,7 @@ namespace PR.Networking
             BeaconIntervalMilli = 3000;
             Port = port;
 
-            BroadcastThread = Parrellelism.Fork(BroadcastLoop);
+            BroadcastThread = Parellelism.Fork(BroadcastLoop);
         }
 
         public void Start()

@@ -55,11 +55,11 @@ public class MousepadProto extends Activity {
     }
 
     public void Button_LeftClick_OnClick(View view) {
-        SendMessage("[click_left:]");
+        SendMessage("[click_left::]");
     }
 
     public void Button_RightClick_OnClick(View view) {
-        SendMessage("[click_right:]");
+        SendMessage("[click_right::]");
     }
 
     private View.OnTouchListener NubClickListener = new View.OnTouchListener() {
@@ -123,11 +123,11 @@ public class MousepadProto extends Activity {
         private float minimum_movement_to_send = 5;
 
         public void TouchUp(float x, float y) {
-            SendMessage("[up:" + x + "," + y + "]");
+            SendMessage("[up:" + x + "," + y + ":]");
         }
 
         public void TouchDown(float x, float y) {
-            SendMessage("[down:" + x + "," + y + "]");
+            SendMessage("[down:" + x + "," + y + ":]");
         }
 
         public void TouchPositionChanged(float x, float y)
@@ -135,7 +135,7 @@ public class MousepadProto extends Activity {
             if(Math.abs(x - LastSent_X) > minimum_movement_to_send || Math.abs(y - LastSent_Y) > minimum_movement_to_send) {
                 LastSent_X = x;
                 LastSent_Y = y;
-                SendMessage("[move:" + x + "," + y + "]");
+                SendMessage("[move:" + x + "," + y + ":]");
             }
         }
     }

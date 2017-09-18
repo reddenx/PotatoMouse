@@ -80,16 +80,14 @@ namespace PR.Networking
         {
             //message format:     [COMMAND_ID:DATA:TARGET_NAME]
 
-
-
-            OnMouseSignalReceived?.Invoke(this, EventArgs.Empty);
-
             //is message valid
             if (!message.StartsWith("[") || !message.EndsWith("]"))//message isn't boxed properly
             {
                 OnError?.Invoke(this, new IOException($"message wasn't boxed properly: {message}"));
                 return;
             }
+
+            OnMouseSignalReceived?.Invoke(this, EventArgs.Empty);
 
             var commandParts = message.Trim('[', ']').Split(':');
             if (commandParts.Length != 3)//message had too many parts

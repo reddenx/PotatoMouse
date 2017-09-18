@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace PR.Presentation.Client.Properties
+namespace PR.Presentation.TargetClient.Properties
 {
 
 
