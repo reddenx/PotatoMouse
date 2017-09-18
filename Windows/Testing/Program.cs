@@ -1,4 +1,5 @@
 ﻿using PR.Emulation.Mouse;
+using SMT.Networking.NetworkConnection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,28 +16,120 @@ namespace Testing
         static void Main(string[] args)
         {
             //RunJoysticMouseTest();
-            RunBroadcastTest();
+            //RunBroadcastTest();
+            RunProtoLoop();
         }
+
+        private static void RunProtoLoop()
+        {
+            //setup network
+            var udp = new UdpNetworkConnection<string>(new AsciiSerializer());
+            udp.StartListening(37015);
+            udp.Target(IPAddress.Broadcast.ToString(), 37015);
+
+            //run broadcast
+            var broadcastLoop = Fork(() =>
+            {
+                var myHostname = Dns.GetHostAddresses(Dns.GetHostName()).First(host => host.AddressFamily == AddressFamily.InterNetwork).ToString();
+                while (true)
+                {
+                    Thread.Sleep(1000);
+                    udp.Send(myHostname);
+                }
+            });
+
+            //var joystic = new MouseJoystic();
+            var joystic = new Mousepad();
+            joystic.SetMovementScale(1f);
+
+            //andle messages
+            udp.OnMessageReceived += (sender, args) =>
+            {
+                //validate
+                if (!args.StartsWith("[") || !args.EndsWith("]"))
+                {
+                    return;
+                }
+
+
+                //parse
+                var tokens = args.Trim('[', ']').Split(':');
+                switch (tokens[0])
+                {
+                    case "down"://set to 0 to prep
+                        {
+                            float x, y;
+                            var pieces = tokens[1].Split(',');
+                            if (float.TryParse(pieces[0], out x) && float.TryParse(pieces[1], out y))
+                            {
+                                joystic.Start(x, y);
+                            }
+                            break;
+                        }
+                    case "up"://set to 0 to make it stop
+                        {
+                            float x, y;
+                            var pieces = tokens[1].Split(',');
+                            if (float.TryParse(pieces[0], out x) && float.TryParse(pieces[1], out y))
+                            {
+                                joystic.Stop(x, y);
+                            }
+                            break;
+                        }
+                    case "move"://set to input
+                        {
+                            float x, y;
+                            var pieces = tokens[1].Split(',');
+                            if (float.TryParse(pieces[0], out x) && float.TryParse(pieces[1], out y))
+                            {
+                                joystic.Moved(x, y);
+                            }
+                            else
+                            {
+                            }
+                            break;
+                        }
+                    case "click_left":
+                        {
+                            joystic.LeftClick();
+                            break;
+                        }
+                    case "click_right":
+                        {
+                            joystic.RightClick();
+                            break;
+                        }
+                    default: { break; }
+                }
+            };
+
+            //hold UI
+            while (true)
+            {
+                Console.ReadKey();
+            }
+        }
+
 
         private static void RunJoysticMouseTest()
         {
             // x right, y down
             var joystic = new MouseJoystic();
 
-            joystic.SetJoysticState(new JoysticState() { X = .5f, Y = 1 }); Thread.Sleep(500);
-            joystic.SetJoysticState(new JoysticState() { X = 1, Y = -.5f }); Thread.Sleep(500);
-            joystic.SetJoysticState(new JoysticState() { X = -.5f, Y = -1 }); Thread.Sleep(500);
-            joystic.SetJoysticState(new JoysticState() { X = -1, Y = .5f }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = .5f, Y = 1 }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = 1, Y = -.5f }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = -.5f, Y = -1 }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = -1, Y = .5f }); Thread.Sleep(500);
 
-            joystic.SetJoysticState(new JoysticState() { X = .5f, Y = 1 }); Thread.Sleep(500);
-            joystic.SetJoysticState(new JoysticState() { X = 1, Y = -.5f }); Thread.Sleep(500);
-            joystic.SetJoysticState(new JoysticState() { X = -.5f, Y = -1 }); Thread.Sleep(500);
-            joystic.SetJoysticState(new JoysticState() { X = -1, Y = .5f }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = .5f, Y = 1 }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = 1, Y = -.5f }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = -.5f, Y = -1 }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = -1, Y = .5f }); Thread.Sleep(500);
 
-            joystic.SetJoysticState(new JoysticState() { X = 2, Y = 0 }); Thread.Sleep(500);
-            joystic.SetJoysticState(new JoysticState() { X = -2, Y = 0 }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = 2, Y = 0 }); Thread.Sleep(500);
+            //joystic.SetJoysticState(new JoysticState() { X = -2, Y = 0 }); Thread.Sleep(500);
 
-            joystic.SetJoysticState(new JoysticState() { X = 0, Y = 0 });
+            //joystic.SetJoysticState(new JoysticState() { X = 0, Y = 0 });
 
             //Thread.Sleep(2000);
             //joystic.LeftDoubleClick();

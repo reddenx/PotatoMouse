@@ -24,6 +24,9 @@ public class MousepadProto extends Activity {
     private Button Button_RightClick;
     private Button Button_MouseNub;
 
+    private MousepadPrototype Joystick;
+    private DatagramSocket Udp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,41 +36,61 @@ public class MousepadProto extends Activity {
         Port = intent.getIntExtra(INTENT_KEY_CONNECTION_PORT, -1);
         Hostname = intent.getStringExtra(INTENT_KEY_CONNECTION_HOSTNAME);
 
-        if(Port == -1 || Hostname == null || Hostname.length() == 0) {
+        if (Port == -1 || Hostname == null || Hostname.length() == 0) {
             //entered without intent information, deal with it
             finish();
         }
 
-        Button_LeftClick = (Button)findViewById(R.id.button_left_click);
-        Button_RightClick = (Button)findViewById(R.id.button_right_click);
-        Button_MouseNub = (Button)findViewById(R.id.button_mouse_nub);
+        Joystick = new MousepadPrototype();
+        try {
+            Udp = new DatagramSocket();
+        } catch (Exception e) {
+        }
+
+        Button_LeftClick = (Button) findViewById(R.id.button_left_click);
+        Button_RightClick = (Button) findViewById(R.id.button_right_click);
+        Button_MouseNub = (Button) findViewById(R.id.button_mouse_nub);
 
         Button_MouseNub.setOnTouchListener(NubClickListener);
     }
 
     public void Button_LeftClick_OnClick(View view) {
+        SendMessage("[click_left:]");
     }
 
     public void Button_RightClick_OnClick(View view) {
+        SendMessage("[click_right:]");
     }
 
     private View.OnTouchListener NubClickListener = new View.OnTouchListener() {
+
         @Override
         public boolean onTouch(View v, MotionEvent event) {
+
+            //we don't care about later touches while the 0 index is down (first one)
+            if(event.getActionIndex() != 0)
+                return false;
+
             switch(event.getAction()) {
                 case MotionEvent.ACTION_DOWN: {
-                    Log.d("udp-click", "down");
-                    SendMessage("mouse_down");
+                    MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
+                    event.getPointerCoords(event.getActionIndex(), coords);
+
+                    Joystick.TouchDown(coords.x, coords.y);
                     break;
                 }
                 case MotionEvent.ACTION_UP: {
-                    Log.d("udp-click", "up");
-                    SendMessage("mouse_up");
+                    MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
+                    event.getPointerCoords(event.getActionIndex(), coords);
+
+                    Joystick.TouchUp(coords.x, coords.y);
                     break;
                 }
                 case MotionEvent.ACTION_MOVE: {
-                    Log.d("udp-click", "move");
-                    SendMessage("mouse_move");
+                    MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
+                    event.getPointerCoords(event.getActionIndex(), coords);
+
+                    Joystick.TouchPositionChanged(coords.x, coords.y);
                     break;
                 }
             }
@@ -84,12 +107,36 @@ public class MousepadProto extends Activity {
 
             InetAddress target = InetAddress.getByName(Hostname);
             DatagramPacket packet = new DatagramPacket(buffer, 0, buffer.length, target, Port);
-            DatagramSocket udp = new DatagramSocket();
 
-            udp.send(packet);
+            Udp.send(packet);
         }
         catch (Exception e) {
             Log.e("udp", "udp error " + e.getMessage());
+        }
+    }
+
+
+    private class MousepadPrototype {
+        private float LastSent_X;
+        private float LastSent_Y;
+
+        private float minimum_movement_to_send = 5;
+
+        public void TouchUp(float x, float y) {
+            SendMessage("[up:" + x + "," + y + "]");
+        }
+
+        public void TouchDown(float x, float y) {
+            SendMessage("[down:" + x + "," + y + "]");
+        }
+
+        public void TouchPositionChanged(float x, float y)
+        {
+            if(Math.abs(x - LastSent_X) > minimum_movement_to_send || Math.abs(y - LastSent_Y) > minimum_movement_to_send) {
+                LastSent_X = x;
+                LastSent_Y = y;
+                SendMessage("[move:" + x + "," + y + "]");
+            }
         }
     }
 }

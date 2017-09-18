@@ -49,6 +49,7 @@
     <Compile Include="Mouse\MouseJoystic.cs" />
     <Compile Include="Mouse\Mousepad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Vector2.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

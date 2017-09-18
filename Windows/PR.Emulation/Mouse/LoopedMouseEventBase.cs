@@ -20,6 +20,7 @@ namespace PR.Emulation.Mouse
         private uint TotalElapsedMilli;
         private readonly Thread MoveLoopThread;
         private bool Disposed;
+        protected float MovementScale { get; private set; }
 
         public LoopedMouseEventBase()
         {
@@ -32,6 +33,11 @@ namespace PR.Emulation.Mouse
             MoveLoopThread = new Thread(new ThreadStart(MoveLoop));
             MoveLoopThread.IsBackground = true;
             MoveLoopThread.Start();
+        }
+
+        public void SetMovementScale(float scale)
+        {
+            MovementScale = scale;
         }
 
         //background loop, runs commands and updates the elapsed time for the thread timer

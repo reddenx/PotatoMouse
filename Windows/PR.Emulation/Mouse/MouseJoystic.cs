@@ -13,18 +13,22 @@ namespace PR.Emulation.Mouse
     {
         private const float DEAD_ZONE_X = 0f;
         private const float DEAD_ZONE_Y = 0f;
-        private const float CALIBRATION = 1f;
 
         private float XCarry; //carryover from last update for x
         private float YCarry; //carryover from last update for y
 
-        private JoysticState CurrentState;
+        private bool Running;
+        private Vector2 StartPosition;
+        private Vector2 EndPosition;
 
         public MouseJoystic()
         {
             XCarry = 0f;
             YCarry = 0f;
-            CurrentState = new JoysticState() { X = 0, Y = 0 };
+            Running = false;
+
+            StartPosition = Vector2.Empty;
+            EndPosition = Vector2.Empty;
         }
 
         protected override void DoScheduledMovementEvents()
@@ -33,12 +37,14 @@ namespace PR.Emulation.Mouse
             var x = 0f;
             var y = 0f;
 
-            //determine raw input for this update loop
-            if (Math.Abs(CurrentState.X) >= DEAD_ZONE_X)
-                x = CurrentState.X * LOOP_WAIT_TIME * CALIBRATION;
+            var joysticState = new Vector2(EndPosition.X - StartPosition.X, EndPosition.Y - StartPosition.Y);
 
-            if (Math.Abs(CurrentState.Y) >= DEAD_ZONE_Y)
-                y = CurrentState.Y * LOOP_WAIT_TIME * CALIBRATION;
+            //determine raw input for this update loop
+            if (Math.Abs(joysticState.X) >= DEAD_ZONE_X)
+                x = joysticState.X * LOOP_WAIT_TIME * MovementScale;
+
+            if (Math.Abs(joysticState.Y) >= DEAD_ZONE_Y)
+                y = joysticState.Y * LOOP_WAIT_TIME * MovementScale;
 
             //add previous carryover
             x += XCarry;
@@ -59,15 +65,22 @@ namespace PR.Emulation.Mouse
             }
         }
 
-        public void SetJoysticState(JoysticState joystic)
+        public void Moved(float x, float y)
         {
-            CurrentState = joystic;
+            EndPosition = new Vector2(x, y);
+            Console.WriteLine($"MOVED {StartPosition.X},{StartPosition.Y} - {x},{y}");
         }
-    }
 
-    public class JoysticState
-    {
-        public float X { get; set; }
-        public float Y { get; set; }
+        public void Stop(float x, float y)
+        {
+            Running = false;
+            StartPosition = EndPosition = Vector2.Empty;
+        }
+
+        public void Start(float x, float y)
+        {
+            Running = true;
+            StartPosition = EndPosition = new Vector2(x, y);
+        }
     }
 }

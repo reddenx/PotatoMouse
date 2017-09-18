@@ -63,6 +63,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:text="left click"
         android:gravity="center|bottom"
+        android:onClick="Button_LeftClick_OnClick"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintVertical_bias="1.0" />
 
@@ -74,6 +75,7 @@
         app:layout_constraintLeft_toLeftOf="@id/guideline_vertical_center"
         app:layout_constraintTop_toTopOf="@id/guideline_horizontal_center"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:onClick="Button_RightClick_OnClick"
         android:text="right click"
         android:gravity="center|bottom" />
 
