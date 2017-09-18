@@ -49,9 +49,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Parrellelism.cs" />
     <Compile Include="Receiver.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="readme.txt" />
+    <Compile Include="RemoteCommands.cs" />
+    <Compile Include="Sender.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
