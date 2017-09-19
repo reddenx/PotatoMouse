@@ -65,7 +65,7 @@ namespace PR.Presentation.TargetClient
 
         private void Receiver_OnMouseMove(object sender, Point e)
         {
-            Mousepad.Moved(e.X, e.Y);
+            Mousepad.MoveMouse(e.X, e.Y);
         }
 
         private void Receiver_OnError(object sender, Exception e)
@@ -73,8 +73,10 @@ namespace PR.Presentation.TargetClient
             this.MessageTextBox.InvokeControl(t => t.Text = $"{e.Message}\r\n{t.Text}");
         }
 
-        private void Receiver_OnMouseSignalReceived(object sender, EventArgs e)
+        private void Receiver_OnMouseSignalReceived(object sender, string e)
         {
+            this.MessageTextBox.InvokeControl(t => t.Text = $"{e}\r\n{t.Text}");
+
             this.StatusImage.InvokeControl(img => img.BackColor = Color.Green);
             this.StatusLabel.InvokeControl(label => label.Text = "Active");
             CurrentIdleState = IdleStates.Active;

@@ -62,7 +62,7 @@ namespace Testing
                             var pieces = tokens[1].Split(',');
                             if (float.TryParse(pieces[0], out x) && float.TryParse(pieces[1], out y))
                             {
-                                joystic.Start(x, y);
+                                //joystic.Start(x, y);
                             }
                             break;
                         }
@@ -72,7 +72,7 @@ namespace Testing
                             var pieces = tokens[1].Split(',');
                             if (float.TryParse(pieces[0], out x) && float.TryParse(pieces[1], out y))
                             {
-                                joystic.Stop(x, y);
+                                //joystic.Stop(x, y);
                             }
                             break;
                         }
@@ -82,7 +82,7 @@ namespace Testing
                             var pieces = tokens[1].Split(',');
                             if (float.TryParse(pieces[0], out x) && float.TryParse(pieces[1], out y))
                             {
-                                joystic.Moved(x, y);
+                                //joystic.Moved(x, y);
                             }
                             else
                             {

@@ -14,7 +14,7 @@ namespace PR.Networking
     /// </summary>
     public class Receiver
     {
-        public event EventHandler OnMouseSignalReceived;
+        public event EventHandler<string> OnMouseSignalReceived;
 
         public event EventHandler<Point> OnMouseMove;
         public event EventHandler<Point> OnMouseSet;
@@ -87,7 +87,7 @@ namespace PR.Networking
                 return;
             }
 
-            OnMouseSignalReceived?.Invoke(this, EventArgs.Empty);
+            OnMouseSignalReceived?.Invoke(this, message);
 
             var commandParts = message.Trim('[', ']').Split(':');
             if (commandParts.Length != 3)//message had too many parts
