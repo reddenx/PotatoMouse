@@ -80,7 +80,7 @@ namespace PR.Emulation.Mouse
         /// do not block this thread, it will ruin all input based events
         /// </summary>
         protected abstract void DoScheduledMovementEvents();
-      
+
         public void LeftClick()
         {
             lock (ScheduledEvents)
@@ -163,6 +163,30 @@ namespace PR.Emulation.Mouse
                 ScheduledEvents.Add(new ScheduledMouseEvent()
                 {
                     Command = MouseEventArgs.LeftUp(),
+                    FireTime = 0
+                });
+            }
+        }
+
+        public void ScrollUp()
+        {
+            lock (ScheduledEvents)
+            {
+                ScheduledEvents.Add(new ScheduledMouseEvent()
+                {
+                    Command = MouseEventArgs.ScrollUp(),
+                    FireTime = 0
+                });
+            }
+        }
+
+        public void ScrollDown()
+        {
+            lock (ScheduledEvents)
+            {
+                ScheduledEvents.Add(new ScheduledMouseEvent()
+                {
+                    Command = MouseEventArgs.ScrollDown(),
                     FireTime = 0
                 });
             }

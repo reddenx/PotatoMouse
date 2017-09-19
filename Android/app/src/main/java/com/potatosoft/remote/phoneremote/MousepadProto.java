@@ -8,6 +8,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
+import com.potatosoft.remote.phoneremote.Utilities.Subscriber;
+import com.potatosoft.remote.phoneremote.Utilities.Vector2;
+import com.potatosoft.remote.phoneremote.mousepad.MousepadStateHandler;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -20,12 +24,12 @@ public class MousepadProto extends Activity {
     private int Port = 37015;
     private String Hostname;
 
-    private Button Button_LeftClick;
-    private Button Button_RightClick;
-    private Button Button_MouseNub;
-
-    private MousepadPrototype Joystick;
     private DatagramSocket Udp;
+
+    private MousepadStateHandler StateHandler;
+
+    private Button Button_Scrollbar;
+    private Button Button_Mousepad;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,28 +45,102 @@ public class MousepadProto extends Activity {
             finish();
         }
 
-        Joystick = new MousepadPrototype();
         try {
             Udp = new DatagramSocket();
         } catch (Exception e) {
         }
 
-        Button_LeftClick = (Button) findViewById(R.id.button_left_click);
-        Button_RightClick = (Button) findViewById(R.id.button_right_click);
-        Button_MouseNub = (Button) findViewById(R.id.button_mouse_nub);
+        //wire up output events
+        StateHandler = new MousepadStateHandler();
+        StateHandler.OnLeftClick.Subscribe(new Subscriber<Void>() {
+            @Override
+            public void HandleMessage(Void message) {
+                SendMessage(MessageBuilder.LeftClick());
+            }
+        });
 
-        Button_MouseNub.setOnTouchListener(NubClickListener);
+        StateHandler.OnLeftDoubleClick.Subscribe(new Subscriber<Void>() {
+            @Override
+            public void HandleMessage(Void message) {
+                SendMessage(MessageBuilder.LeftDoubleClick());
+            }
+        });
+
+        StateHandler.OnLeftDown.Subscribe(new Subscriber<Void>() {
+            @Override
+            public void HandleMessage(Void message) {
+                SendMessage(MessageBuilder.LeftPress());
+            }
+        });
+
+        StateHandler.OnLeftUp.Subscribe(new Subscriber<Void>() {
+            @Override
+            public void HandleMessage(Void message) {
+                SendMessage(MessageBuilder.LeftRelease());
+            }
+        });
+
+        StateHandler.OnMouseMoved.Subscribe(new Subscriber<Vector2<Integer>>() {
+            @Override
+            public void HandleMessage(Vector2<Integer> message) {
+                SendMessage(MessageBuilder.MouseMove(message.X, message.Y));
+            }
+        });
+
+        Button_Scrollbar = (Button) findViewById(R.id.button_scrollbar);
+        Button_Mousepad = (Button) findViewById(R.id.button_mousepad);
+
+        Button_Mousepad.setOnTouchListener(MousepadTouchListener);
+        Button_Scrollbar.setOnTouchListener(ScrollbarTouchListener);
     }
 
-    public void Button_LeftClick_OnClick(View view) {
-        SendMessage(MessageBuilder.LeftClick());
-    }
 
     public void Button_RightClick_OnClick(View view) {
         SendMessage(MessageBuilder.RightClick());
     }
 
-    private View.OnTouchListener NubClickListener = new View.OnTouchListener() {
+    private View.OnTouchListener ScrollbarTouchListener = new View.OnTouchListener() {
+
+        private float LastY;
+        private final int SCROLL_DISTANCE = 50;
+
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+
+            if (event.getActionIndex() != 0)
+                return false;
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    return true;
+                }
+                case MotionEvent.ACTION_UP: {
+                    return true;
+                }
+                case MotionEvent.ACTION_MOVE: {
+                    MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
+                    event.getPointerCoords(event.getActionIndex(), coords);
+
+                    if (LastY - coords.y > SCROLL_DISTANCE) {
+                        LastY -= SCROLL_DISTANCE;
+                        SendMessage(MessageBuilder.Scrollwheel(-1));
+                    }
+
+                    if (coords.y - LastY > SCROLL_DISTANCE) {
+                        LastY += SCROLL_DISTANCE;
+                        SendMessage(MessageBuilder.Scrollwheel(1));
+                    }
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    };
+
+    private View.OnTouchListener MousepadTouchListener = new View.OnTouchListener() {
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
@@ -76,21 +154,22 @@ public class MousepadProto extends Activity {
                     MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
                     event.getPointerCoords(event.getActionIndex(), coords);
 
-                    Joystick.TouchDown(coords.x, coords.y);
+
+                    StateHandler.InputTouchDown(coords.x, coords.y);
                     break;
                 }
                 case MotionEvent.ACTION_UP: {
                     MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
                     event.getPointerCoords(event.getActionIndex(), coords);
 
-                    Joystick.TouchUp(coords.x, coords.y);
+                    StateHandler.InputTouchUp(coords.x, coords.y);
                     break;
                 }
                 case MotionEvent.ACTION_MOVE: {
                     MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
                     event.getPointerCoords(event.getActionIndex(), coords);
 
-                    Joystick.TouchPositionChanged(coords.x, coords.y);
+                    StateHandler.InputTouchPositionChanged(coords.x, coords.y);
                     break;
                 }
             }
@@ -116,7 +195,7 @@ public class MousepadProto extends Activity {
     }
 
 
-    private class MousepadPrototype {
+   /* private class MousepadPrototype {
         private float LastSent_X;
         private float LastSent_Y;
 
@@ -142,5 +221,5 @@ public class MousepadProto extends Activity {
                 SendMessage(MessageBuilder.MouseMove(sendX, sendY));
             }
         }
-    }
+    }*/
 }

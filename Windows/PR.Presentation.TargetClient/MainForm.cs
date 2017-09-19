@@ -42,30 +42,21 @@ namespace PR.Presentation.TargetClient
             Receiver.Start();
             Receiver.OnError += Receiver_OnError;
 
-            Receiver.OnMouseMove += Receiver_OnMouseMove;
-            Receiver.OnMouseLeftClick += Receiver_OnMouseLeftClick;
-            Receiver.OnMouseRightClick += Receiver_OnMouseRightClick;
+            Receiver.OnMouseMove += (o, e) => { Mousepad.MoveMouse(e.X, e.Y); };
+            Receiver.OnMouseLeftClick += (o, e) => { Mousepad.LeftClick(); };
+            Receiver.OnMouseRightClick += (o, e) => { Mousepad.RightClick(); };
+            Receiver.OnMouseDoubleLeftClick += (o, e) => { Mousepad.LeftDoubleClick(); };
+            Receiver.OnMouseLeftPress += (o, e) => { Mousepad.LeftDown(); };
+            Receiver.OnMouseLeftRelease += (o, e) => { Mousepad.LeftUp(); };
+            Receiver.OnScrollwheelMove += (o, e) =>
+            {
+                if (e > 0) Mousepad.ScrollDown();
+                else Mousepad.ScrollUp();
+            };
 
             Receiver.OnMouseSignalReceived += Receiver_OnMouseSignalReceived;
             IdleTimer = new System.Threading.Timer(HandleIdleTimer);
             IdleTimer.Change(0, IDLE_TIME_MILLI);
-        }
-
-        
-
-        private void Receiver_OnMouseRightClick(object sender, EventArgs e)
-        {
-            Mousepad.RightClick();
-        }
-
-        private void Receiver_OnMouseLeftClick(object sender, EventArgs e)
-        {
-            Mousepad.LeftClick();
-        }
-
-        private void Receiver_OnMouseMove(object sender, Point e)
-        {
-            Mousepad.MoveMouse(e.X, e.Y);
         }
 
         private void Receiver_OnError(object sender, Exception e)
