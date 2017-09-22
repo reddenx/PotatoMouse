@@ -113,6 +113,10 @@ public class MousepadProto extends Activity {
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN: {
+                    MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
+                    event.getPointerCoords(event.getActionIndex(), coords);
+                    LastY = coords.y;
+
                     return true;
                 }
                 case MotionEvent.ACTION_UP: {
@@ -122,14 +126,10 @@ public class MousepadProto extends Activity {
                     MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
                     event.getPointerCoords(event.getActionIndex(), coords);
 
-                    if (LastY - coords.y > SCROLL_DISTANCE) {
-                        LastY -= SCROLL_DISTANCE;
-                        SendMessage(MessageBuilder.Scrollwheel(-1));
-                    }
-
-                    if (coords.y - LastY > SCROLL_DISTANCE) {
-                        LastY += SCROLL_DISTANCE;
-                        SendMessage(MessageBuilder.Scrollwheel(1));
+                    if (Math.abs(LastY - coords.y) > SCROLL_DISTANCE) {
+                        int scrollAmount = Math.round((coords.y - LastY ) / (float)SCROLL_DISTANCE);
+                        LastY += scrollAmount * SCROLL_DISTANCE;
+                        SendMessage(MessageBuilder.Scrollwheel(scrollAmount));
                     }
 
                     return true;

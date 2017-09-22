@@ -81,9 +81,9 @@ namespace PR.Networking
             //message format:     [COMMAND_ID:DATA:TARGET_NAME]
 
             //is message valid
-            if (!message.StartsWith("[") || !message.EndsWith("]"))//message isn't boxed properly
+            if (!message.StartsWith("[") || !message.EndsWith("]"))//message isn't boxed properly, this probably wasn't even meant for us, likely just a beacon echo
             {
-                OnError?.Invoke(this, new IOException($"message wasn't boxed properly: {message}"));
+                //OnError?.Invoke(this, new IOException($"message wasn't boxed properly: {message}"));
                 return;
             }
 

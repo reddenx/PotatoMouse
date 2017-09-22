@@ -17,11 +17,14 @@ namespace PR.Presentation.TargetClient
     public partial class MainForm : Form
     {
         private const int IDLE_TIME_MILLI = 1000 * 30;
+        private const int IDLE_LOOP_TIME_MILLI = 1000;
 
+        private readonly Thread IdleLoopThread;
         private readonly Receiver Receiver;
         private readonly Mousepad Mousepad;
         private readonly KeyboardEventRunner Keyboard;
-        private readonly System.Threading.Timer IdleTimer;
+
+        private DateTime LastMessage;
 
         private readonly ClientBroadcastSignaler Broadcaster;
 
@@ -55,8 +58,13 @@ namespace PR.Presentation.TargetClient
             };
 
             Receiver.OnMouseSignalReceived += Receiver_OnMouseSignalReceived;
-            IdleTimer = new System.Threading.Timer(HandleIdleTimer);
-            IdleTimer.Change(0, IDLE_TIME_MILLI);
+
+            LastMessage = DateTime.Now;
+            IdleLoopThread = new Thread(new ThreadStart(IdleTimerLoop));
+            IdleLoopThread.IsBackground = true;
+            IdleLoopThread.Start();
+
+            HandleIdleStateChange();
         }
 
         private void Receiver_OnError(object sender, Exception e)
@@ -66,31 +74,58 @@ namespace PR.Presentation.TargetClient
 
         private void Receiver_OnMouseSignalReceived(object sender, string e)
         {
-            this.MessageTextBox.InvokeControl(t => t.Text = $"{e}\r\n{t.Text}");
+            if (this.MessageTextBox.Text.Length > 1000)
+                this.MessageTextBox.InvokeControl(t => t.Text = "");
 
-            this.StatusImage.InvokeControl(img => img.BackColor = Color.Green);
-            this.StatusLabel.InvokeControl(label => label.Text = "Active");
-            CurrentIdleState = IdleStates.Active;
+
+            this.MessageTextBox.InvokeControl(t => t.Text = $"{e}\r\n{t.Text}");
+            LastMessage = DateTime.Now;
+
+            if (CurrentIdleState != IdleStates.Active)
+            {
+                CurrentIdleState = IdleStates.Active;
+                HandleIdleStateChange();
+            }
             Broadcaster.Pause(30);
         }
 
-        private void HandleIdleTimer(object state)
+        private void IdleTimerLoop()
+        {
+            while (true)
+            {
+                if (LastMessage.AddMilliseconds(IDLE_TIME_MILLI) < DateTime.Now)
+                {
+                    CurrentIdleState = IdleStates.Idle;
+                    HandleIdleStateChange();
+                }
+                Thread.Sleep(IDLE_LOOP_TIME_MILLI);
+            }
+        }
+
+        private void HandleIdleStateChange()
         {
             switch (CurrentIdleState)
             {
                 case IdleStates.Unset:
-                    this.StatusImage.InvokeControl(img => img.BackColor = Color.Gray);
-                    this.StatusLabel.InvokeControl(label => label.Text = "No Activity");
-                    Broadcaster.Start();
+                    CurrentIdleState = IdleStates.Inactive;
+                    HandleIdleStateChange();
                     break;
                 case IdleStates.Active:
                     this.StatusImage.InvokeControl(img => img.BackColor = Color.Green);
                     this.StatusLabel.InvokeControl(label => label.Text = "Active");
+                    Broadcaster.Stop();
                     break;
 
                 case IdleStates.Inactive:
+                    this.StatusImage.InvokeControl(img => img.BackColor = Color.Gray);
+                    this.StatusLabel.InvokeControl(label => label.Text = "Searching");
+                    Broadcaster.Start();
                     break;
+
                 case IdleStates.Idle:
+                    this.StatusImage.InvokeControl(img => img.BackColor = Color.Yellow);
+                    this.StatusLabel.InvokeControl(label => label.Text = "Idle, Searching");
+                    Broadcaster.Start();
                     break;
             }
         }
