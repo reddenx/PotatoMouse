@@ -3,10 +3,12 @@ package com.potatosoft.remote.phoneremote;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.potatosoft.remote.phoneremote.Utilities.Subscriber;
 import com.potatosoft.remote.phoneremote.Utilities.Vector2;
@@ -33,6 +35,11 @@ public class MousepadProto extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //a hack to get the threading to work for now on the main thread.... yeah yeah, bad bad
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mousepad_proto);
 
@@ -43,6 +50,7 @@ public class MousepadProto extends Activity {
         if (Port == -1 || Hostname == null || Hostname.length() == 0) {
             //entered without intent information, deal with it
             finish();
+            Toast.makeText(this, "no endpoint specified, mouse-pad canceled", Toast.LENGTH_SHORT);
         }
 
         try {
