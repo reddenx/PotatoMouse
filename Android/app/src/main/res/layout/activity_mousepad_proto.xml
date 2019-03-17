@@ -38,13 +38,41 @@
         android:id="@+id/button_hacky_rightclick"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/button_next_track"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/separator_horizontal"
-        android:text="Hacky Right Click"
+        app:layout_constraintBottom_toBottomOf="@+id/separator_horizontal"
+        android:text="Right Click"
         android:onClick="Button_RightClick_OnClick"
         />
+
+    <Button
+        android:id="@+id/button_next_track"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintLeft_toRightOf="@+id/button_play_pause"
+        app:layout_constraintRight_toLeftOf="@+id/button_hacky_rightclick"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/separator_horizontal"
+        android:text=">>"
+        android:onClick="Button_NextTrack_OnClick"
+        />
+
+
+    <Button
+        android:id="@+id/button_play_pause"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/button_next_track"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/separator_horizontal"
+        android:text="|| >"
+        android:onClick="Button_PlayPause_OnClick"
+        />
+
+
+
 
     <!--
 

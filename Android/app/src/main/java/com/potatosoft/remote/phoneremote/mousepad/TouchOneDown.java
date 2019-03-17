@@ -13,22 +13,28 @@ public class TouchOneDown extends MousePadStateBase {
     private final int LEFT_CLICK_MOVE_THRESHOLD = 20;
     private float StartX;
     private float StartY;
+    private float LastX;
+    private float LastY;
 
     public TouchOneDown(MousePadStateBase previousState, float x, float y){
         super(previousState);
         Expiration = new Timer();
+
+        StartX = x;
+        StartY = y;
+        LastX  = x;
+        LastY = y;
+
         Expiration.schedule(new TimerTask() {
             @Override
             public void run() {
                 SwitchToMove();
             }
         }, LEFT_CLICK_TO_MOVE_WAIT);
-        StartX = x;
-        StartY = y;
     }
 
     private void SwitchToMove(){
-        ChangeState(new MoveState(this, StartX, StartY));
+        ChangeState(new MoveState(this, LastX, LastY));
     }
 
     @Override
@@ -45,6 +51,8 @@ public class TouchOneDown extends MousePadStateBase {
     @Override
     public void TouchMove(float x, float y) {
         //check if went outside zone
+        LastX = x;
+        LastY = y;
         if(Math.abs(StartX - x) > LEFT_CLICK_MOVE_THRESHOLD || Math.abs(StartY - y) > LEFT_CLICK_MOVE_THRESHOLD) {
             Expiration.cancel();
             SwitchToMove();

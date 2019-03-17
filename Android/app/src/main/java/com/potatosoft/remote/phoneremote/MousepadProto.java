@@ -106,6 +106,8 @@ public class MousepadProto extends Activity {
     public void Button_RightClick_OnClick(View view) {
         SendMessage(MessageBuilder.RightClick());
     }
+    public void Button_NextTrack_OnClick(View view) { SendMessage(MessageBuilder.KeyboardKeyClick(MessageBuilder.Keys.MEDIA_NEXT)); }
+    public void Button_PlayPause_OnClick(View view) { SendMessage(MessageBuilder.KeyboardKeyClick(MessageBuilder.Keys.MEDIA_PLAY_PAUSE)); }
 
     private View.OnTouchListener ScrollbarTouchListener = new View.OnTouchListener() {
 
@@ -190,7 +192,7 @@ public class MousepadProto extends Activity {
         try {
             byte[] buffer = message.getBytes();
 
-            Log.d("udp-send", "sending to" + Hostname + ":" + Port + " message: " + message);
+            //Log.d("udp-send", "sending to" + Hostname + ":" + Port + " message: " + message);
 
             InetAddress target = InetAddress.getByName(Hostname);
             DatagramPacket packet = new DatagramPacket(buffer, 0, buffer.length, target, Port);

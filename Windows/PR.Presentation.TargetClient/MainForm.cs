@@ -58,6 +58,7 @@ namespace PR.Presentation.TargetClient
             };
 
             Receiver.OnMouseSignalReceived += Receiver_OnMouseSignalReceived;
+            Receiver.OnKeyboardKeyClick += Receiver_OnKeyboardKeyClick;
 
             LastMessage = DateTime.Now;
             IdleLoopThread = new Thread(new ThreadStart(IdleTimerLoop));
@@ -67,16 +68,47 @@ namespace PR.Presentation.TargetClient
             HandleIdleStateChange();
         }
 
+        private void Receiver_OnKeyboardKeyClick(object sender, string e)
+        {
+            //TODO currently only supports the two media buttons called out, should move to emulation project with full keyboard support
+            switch (e)
+            {
+                case "media-play-pause":
+                    PressKey(0xB3, 0);
+                    break;
+                case "media-next":
+                    PressKey(0xB0, 0);
+                    break;
+                default:
+                    LogError($"unknown key command {e}");
+                    break;
+            }
+        }
+
+        private void PressKey(int vk, int sk)
+        {
+            Parallelism.Fork(() =>
+            {
+                Keyboard.DoEvent(new KeyboardEventArgs(vk, sk, true));
+                Thread.Sleep(100);
+                Keyboard.DoEvent(new KeyboardEventArgs(vk, sk, false));
+            });
+        }
+
         private void Receiver_OnError(object sender, Exception e)
         {
-            this.MessageTextBox.InvokeControl(t => t.Text = $"{e.Message}\r\n{t.Text}");
+            LogError(e.Message);
+        }
+
+        private void LogError(string errorMessage)
+        {
+            this.MessageTextBox.InvokeControl(t => t.Text = $"{errorMessage}\r\n{t.Text}");
         }
 
         private void Receiver_OnMouseSignalReceived(object sender, string e)
         {
             if (this.MessageTextBox.Text.Length > 1000)
                 this.MessageTextBox.InvokeControl(t => t.Text = "");
-
 
             this.MessageTextBox.InvokeControl(t => t.Text = $"{e}\r\n{t.Text}");
             LastMessage = DateTime.Now;

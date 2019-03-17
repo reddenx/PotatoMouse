@@ -13,12 +13,16 @@ public class TouchOneDownTwo extends MousePadStateBase {
     private final int DRAG_MOVE_THRESHOLD = 20;
     private float StartX;
     private float StartY;
+    private float LastX;
+    private float LastY;
 
     public TouchOneDownTwo(MousePadStateBase previousState, float x, float y) {
         super(previousState);
 
         StartX = x;
         StartY = y;
+        LastX = x;
+        LastY = y;
 
         Expiration = new Timer();
         Expiration.schedule(new TimerTask() {
@@ -31,7 +35,7 @@ public class TouchOneDownTwo extends MousePadStateBase {
 
     private void StartDragging() {
         StateHandler.OutputDragStart();
-        ChangeState(new LeftDrag(this, StartX, StartY));
+        ChangeState(new LeftDrag(this, LastX, LastY));
     }
 
     @Override
@@ -48,6 +52,8 @@ public class TouchOneDownTwo extends MousePadStateBase {
 
     @Override
     public void TouchMove(float x, float y) {
+        LastX = x;
+        LastY = y;
         if(Math.abs(StartX - x) > DRAG_MOVE_THRESHOLD || Math.abs(StartY - y) > DRAG_MOVE_THRESHOLD) {
             Expiration.cancel();
             StartDragging();
