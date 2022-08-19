@@ -89,9 +89,21 @@ namespace PR.Presentation.TargetClient
         {
             Parallelism.Fork(() =>
             {
-                Keyboard.DoEvent(new KeyboardEventArgs(vk, sk, true));
-                Thread.Sleep(100);
-                Keyboard.DoEvent(new KeyboardEventArgs(vk, sk, false));
+                if (this.InvokeRequired)
+                {
+                    this.Invoke(new Action(() =>
+                    {
+                        Keyboard.DoEvent(new KeyboardEventArgs(vk, sk, true));
+                        Thread.Sleep(100);
+                        Keyboard.DoEvent(new KeyboardEventArgs(vk, sk, false));
+                    }));
+                }
+                else
+                {
+                    Keyboard.DoEvent(new KeyboardEventArgs(vk, sk, true));
+                    Thread.Sleep(100);
+                    Keyboard.DoEvent(new KeyboardEventArgs(vk, sk, false));
+                }
             });
         }
 
