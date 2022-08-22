@@ -65,11 +65,12 @@ namespace WindowsSocketCore
                             Console.Error.WriteLine("received unexpected binary data");
                             break;
                         case WebSocketMessageType.Close:
-                            OnDisconnected?.Invoke(this, EventArgs.Empty);
+                            try { OnDisconnected?.Invoke(this, EventArgs.Empty); } catch { }
                             return;
                         case WebSocketMessageType.Text:
                             var message = ASCIIEncoding.ASCII.GetString(buffer.Array, 0, msgMeta.Count);
-                            OnMessageReceived?.Invoke(this, message);
+                            //to protect the loop from shitty user code
+                            try { OnMessageReceived?.Invoke(this, message); } catch { }
                             break;
                         default:
                             //???

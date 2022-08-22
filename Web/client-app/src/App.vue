@@ -11,7 +11,8 @@
       {{ receiveText }}
     </div>
     <div
-      style="border: 1px solid black; height: 100px; width: 100px"
+      class="mousepad"
+      @contextmenu="eatContext"
       @mousedown="mpdown"
       @mouseenter="mpenter"
       @mouseleave="mpleave"
@@ -28,18 +29,39 @@
   </div>
 </template>
 
+
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+
+.mousepad {
+  border: 1px solid black;
+  height: 1200px;
+  width: 1200px;
+  touch-action: none;
+}
+</style>
+
 <script>
 import { Connection } from "./scripts/socket";
+import { Mousepad } from "./scripts/mousepad";
 
 export default {
   name: "App",
   components: {},
   data() {
     return {
-      connectText: "ws://127.0.0.1:37070",
+      connectText: "ws://192.168.0.59:37075",
       sendText: "test",
       receiveText: "",
       connection: null,
+      pad: null,
     };
   },
   computed: {
@@ -57,13 +79,19 @@ export default {
   mounted() {
     this.connection = new Connection();
     this.connection.registerMessageHandler(this.handleMessage);
+    this.pad = new Mousepad(this.connection);
   },
   methods: {
     connectPressed() {
       this.connection.connect(this.connectText);
     },
     sendPressed() {
-      this.connection.send(this.sendText);
+      // let cmd = {
+      //   type: 'mouseClick',
+      //   data: 'left'
+      // }
+      // this.connection.send(JSON.stringify(cmd));
+      // this.connection.send(this.sendText);
     },
     handleMessage(message) {
       this.receiveText = message;
@@ -71,17 +99,17 @@ export default {
     handleDisconnect() {},
 
     mpdown() {
-      console.log("mpdown");
+      // console.log("mpdown");
     },
     mpup() {
-      console.log("mpup");
+      // console.log("mpup");
     },
 
     mpenter() {
-      console.log("mpenter");
+      // console.log("mpenter");
     },
     mpover() {
-      console.log("mpover");
+      // console.log("mpover");
     },
 
     mpmove() {
@@ -89,39 +117,47 @@ export default {
     },
 
     mpleave() {
-      console.log("mpleave");
+      // console.log("mpleave");
     },
     mpout() {
-      console.log("mpout");
+      // console.log("mpout");
     },
 
     mpwheel() {
-      console.log("mpwheel");
+      // console.log("mpwheel");
     },
 
-    tstart() {
-      console.log("tstart");
+    tstart(e) {
+      // console.log("tstart", e);
+      [...e.changedTouches].forEach((t) =>
+        this.pad.inputTouchDown(t.screenX, t.screenY, t.identifier)
+      );
     },
-    tmove() {
-      console.log("tmove");
+    tmove(e) {
+      //console.log("tmove", e);
+      [...e.changedTouches].forEach((t) =>
+        this.pad.inputTouchPositionChanged(t.screenX, t.screenY, t.identifier)
+      );
     },
-    tcancel() {
-      console.log("tcancel");
+    tcancel(e) {
+      // console.log("tcancel", e);
+      [...e.changedTouches].forEach((t) =>
+        this.pad.inputTouchUp(t.screenX, t.screenY, t.identifier)
+      );
     },
-    tend() {
-      console.log("tend");
+    tend(e) {
+      // console.log("tend", e);
+      [...e.changedTouches].forEach((t) =>
+        this.pad.inputTouchUp(t.screenX, t.screenY, t.identifier)
+      );
     },
+    eatContext(e) {
+      // console.log("contextmenue", e);
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
   },
 };
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>

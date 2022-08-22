@@ -25,8 +25,7 @@ namespace WindowsSocketForms
          * - when client disconnects, show qr code again
          * */
 
-        private readonly MouseEventRunner _mouse;
-        private readonly KeyboardEventRunner _keyboard;
+        private readonly MessageHandler _handler;
         private readonly HttpListener _listener;
         private WebsocketClient _socket = null;
         private Thread _connectThread;
@@ -35,8 +34,7 @@ namespace WindowsSocketForms
         {
             InitializeComponent();
 
-            _mouse = new MouseEventRunner();
-            _keyboard = new KeyboardEventRunner();
+            _handler = new MessageHandler();
 
             GenerateQrCode();
             _listener = new HttpListener();
@@ -102,7 +100,7 @@ namespace WindowsSocketForms
 
         private void HandleMessageReceived(string msg)
         {
-            
+            _handler.RunCommand(msg);
         }
     }
 
