@@ -36,6 +36,8 @@ namespace WindowsSocketForms
             InitializeComponent();
 
             _handler = new MessageHandler();
+            label4.InvokeControl(l => l.Text = _handler.ScrollScale.ToString());
+            label1.InvokeControl(l => l.Text = _handler.MoveScale.ToString());
 
             GenerateQrCode();
             _listener = new HttpListener();
@@ -96,11 +98,37 @@ namespace WindowsSocketForms
             var bgImage = ImageGenerator.CloseResize(image, new Size(this.Width, this.Height));
 
             this.BackgroundImage = bgImage;
+            HideControls();
+        }
+
+        private void ShowControls()
+        {
+            //yes I know this is stupid, I'm just being lazy and prototyping
+            label1.InvokeControl(c => c.Visible = true);
+            label2.InvokeControl(c => c.Visible = true);
+            label3.InvokeControl(c => c.Visible = true);
+            label4.InvokeControl(c => c.Visible = true);
+            button1.InvokeControl(c => c.Visible = true);
+            button3.InvokeControl(c => c.Visible = true);
+            button4.InvokeControl(c => c.Visible = true);
+            button5.InvokeControl(c => c.Visible = true);
+        }
+        private void HideControls()
+        {
+            label1.InvokeControl(c => c.Visible = false);
+            label2.InvokeControl(c => c.Visible = false);
+            label3.InvokeControl(c => c.Visible = false);
+            label4.InvokeControl(c => c.Visible = false);
+            button1.InvokeControl(c => c.Visible = false);
+            button3.InvokeControl(c => c.Visible = false);
+            button4.InvokeControl(c => c.Visible = false);
+            button5.InvokeControl(c => c.Visible = false);
         }
 
         private void ClientIsConnected()
         {
             this.InvokeControl(f => f.BackgroundImage = null);
+            ShowControls();
         }
 
         private void ClientDisconnected()
@@ -114,6 +142,32 @@ namespace WindowsSocketForms
         private void HandleMessageReceived(string msg)
         {
             _handler.RunCommand(msg);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (_handler.MoveScale > 1)
+                _handler.MoveScale -= 1;
+            label1.InvokeControl(l => l.Text = _handler.MoveScale.ToString());
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            _handler.MoveScale += 1;
+            label1.InvokeControl(l => l.Text = _handler.MoveScale.ToString());
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (_handler.ScrollScale > 1)
+                _handler.ScrollScale -= 1;
+            label4.InvokeControl(l => l.Text = _handler.ScrollScale.ToString());
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            _handler.ScrollScale += 1;
+            label4.InvokeControl(l => l.Text = _handler.ScrollScale.ToString());
         }
     }
 

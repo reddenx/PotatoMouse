@@ -12,6 +12,9 @@ namespace WindowsSocketForms
         private readonly MouseEventRunner _mouse;
         private readonly KeyboardEventRunner _keyboard;
 
+        public int MoveScale { get; set; } = 3;
+        public int ScrollScale { get; set; } = 3;
+
         public MessageHandler()
         {
             _mouse = new MouseEventRunner();
@@ -27,7 +30,7 @@ namespace WindowsSocketForms
                     var xy = cmd.Data.Split(',');
                     var x = int.Parse(xy[0]);
                     var y = int.Parse(xy[1]);
-                    _mouse.DoEvent(MouseEventArgs.Move(x, y));
+                    _mouse.DoEvent(MouseEventArgs.Move(x*MoveScale, y*MoveScale));
                     break;
                 case CommandType.mouseClick:
                     if (cmd.Data.ToLower() == "left")
