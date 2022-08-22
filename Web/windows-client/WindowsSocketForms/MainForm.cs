@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -53,21 +54,33 @@ namespace WindowsSocketForms
             while (true)
             {
                 var context = _listener.GetContextAsync().Result;
-                if (_socket != null)
+                if (context.Request.IsWebSocketRequest)
                 {
-                    context.Response.StatusCode = 400;
-                    context.Response.StatusDescription = "Connection Already Established";
-                    context.Response.Close();
-                    continue;
+                    if (_socket != null)
+                    {
+                        context.Response.StatusCode = 400;
+                        context.Response.StatusDescription = "Connection Already Established";
+                        context.Response.Close();
+                        continue;
+                    }
+
+                    var socket = context.AcceptWebSocketAsync(null).Result;
+                    _socket = new WebsocketClient(socket.WebSocket);
+                    _socket.OnDisconnected += (o, e) => ClientDisconnected();
+                    _socket.OnMessageReceived += (o, e) => HandleMessageReceived(e);
+                    _socket.StartListening();
+
+                    ClientIsConnected();
                 }
-
-                var socket = context.AcceptWebSocketAsync(null).Result;
-                _socket = new WebsocketClient(socket.WebSocket);
-                _socket.OnDisconnected += (o,e) => ClientDisconnected();
-                _socket.OnMessageReceived += (o, e) => HandleMessageReceived(e);
-                _socket.StartListening();
-
-                ClientIsConnected();
+                else
+                {
+                    using (var stream = new StreamWriter(context.Response.OutputStream))
+                    {
+                        stream.Write(HtmlTrash.GARBO);
+                    }
+                    context.Response.StatusCode = 200;
+                    context.Response.Close();
+                }
             }
             _listener.Stop();
         }
@@ -76,7 +89,7 @@ namespace WindowsSocketForms
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
             var ip = host.AddressList.FirstOrDefault(h => h.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-            var data = QRCodeGenerator.GenerateQrCode(ip.ToString(), QRCodeGenerator.ECCLevel.L);
+            var data = QRCodeGenerator.GenerateQrCode($"http://{ip}:37075/#/{ip}", QRCodeGenerator.ECCLevel.L);
             var code = new QRCode(data);
             var image = code.GetGraphic(20);
 
