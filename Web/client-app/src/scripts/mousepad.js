@@ -3,11 +3,11 @@ import { Connection } from './socket'
 /** time to wait after the first click for a second to start dragging or doubleclick */
 const SINGLE_CLICK_WAIT = 200;
 /** distance moved before a single touch starts to be considered a move */
-const TOUCH_MOVE_THRESHOLD = 50;
+const TOUCH_MOVE_THRESHOLD = 10;
 /** time a first touch is held in place to consider it a hesitant move gesture */
-const TOUCH_MOVE_TIME_THRESHOLD = 1000;
+const TOUCH_MOVE_TIME_THRESHOLD = 400;
 /** time to wait while holding a double click to start a drag, if lifted before this, it's considered a double click*/
-const TOUCH_DRAG_TIME_THRESHOLD = 1000;
+const TOUCH_DRAG_TIME_THRESHOLD = 200;
 
 
 export class Mousepad {

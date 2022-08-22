@@ -17,6 +17,7 @@ namespace WindowsSocketCore
 
         public bool IsListening { get; private set; } = false;
         public bool IsConnected => _socket.State == WebSocketState.Open;
+        private bool _hasFiredDisconnectEvents = false;
 
         public WebsocketClient(WebSocket socket)
         {
@@ -45,6 +46,13 @@ namespace WindowsSocketCore
 
         public async Task Close()
         {
+            lock (this)
+            {
+                if (!_hasFiredDisconnectEvents)
+                    _hasFiredDisconnectEvents = true;
+                else
+                    return;
+            }
             await _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
             OnDisconnected?.Invoke(this, EventArgs.Empty);
         }
@@ -79,10 +87,16 @@ namespace WindowsSocketCore
                 }
             }
             catch { }
-            finally
+            this.IsListening = false;
+
+            lock (this)
             {
-                this.IsListening = false;
+                if (!_hasFiredDisconnectEvents)
+                    _hasFiredDisconnectEvents = true;
+                else
+                    return;
             }
+            OnDisconnected?.Invoke(this, EventArgs.Empty);
         }
 
 
