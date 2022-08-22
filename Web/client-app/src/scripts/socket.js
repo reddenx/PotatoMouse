@@ -10,6 +10,8 @@ export class Connection {
         this.messageHandlers = [];
         /** @type {Array<() => any>} */
         this.disconnectHandlers = [];
+        /** @type {Array<() => any>} */
+        this.connectHandlers = [];
     }
 
     /** @param {String} host */
@@ -30,6 +32,7 @@ export class Connection {
         this.socket.addEventListener('open', event => {
             console.log('open', event);
             this.busy = false;
+            this.connectHandlers.forEach(d => d());
         });
         this.socket.addEventListener('message', event => {
             console.log('message', event);
@@ -42,7 +45,6 @@ export class Connection {
 
             this.connected = false;
             this.socket = null;
-
             this.disconnectHandlers.forEach(d => d());
         });
         this.socket.addEventListener('error', event => {
@@ -80,5 +82,12 @@ export class Connection {
      */
     registerDisconnectHandler(handler) {
         this.disconnectHandlers.push(handler);
+    }
+    /**
+     * 
+     * @param {() => any} handler 
+     */
+    registerConnectHandler(handler) {
+        this.connectHandlers.push(handler);
     }
 }
