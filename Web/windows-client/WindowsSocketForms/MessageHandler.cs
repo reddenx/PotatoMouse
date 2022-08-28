@@ -28,8 +28,8 @@ namespace WindowsSocketForms
             {
                 case CommandType.mouseMove:
                     var xy = cmd.Data.Split(',');
-                    var x = int.Parse(xy[0]);
-                    var y = int.Parse(xy[1]);
+                    var x = (int)Math.Round(float.Parse(xy[0]));
+                    var y = (int)Math.Round(float.Parse(xy[1]));
                     _mouse.DoEvent(MouseEventArgs.Move(x*MoveScale, y*MoveScale));
                     break;
                 case CommandType.mouseClick:
