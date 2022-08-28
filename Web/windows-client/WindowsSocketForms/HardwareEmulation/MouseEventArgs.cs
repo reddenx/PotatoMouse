@@ -45,7 +45,7 @@ namespace SMT.Utilities.InputEvents.HardwareEvents
         {
             return new MouseEventArgs(0, 0, MouseEventDefinitions.MOUSEEVENTF_MIDDLEDOWN, 0);
         }
-        public static MouseEventArgs MiddlwUp()
+        public static MouseEventArgs MiddleUp()
         {
             return new MouseEventArgs(0, 0, MouseEventDefinitions.MOUSEEVENTF_MIDDLEUP, 0);
         }

@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
+using MouseEventArgs = SMT.Utilities.InputEvents.HardwareEvents.MouseEventArgs;
 
 namespace WindowsSocketForms
 {
@@ -30,7 +32,7 @@ namespace WindowsSocketForms
                     var xy = cmd.Data.Split(',');
                     var x = (int)Math.Round(float.Parse(xy[0]));
                     var y = (int)Math.Round(float.Parse(xy[1]));
-                    _mouse.DoEvent(MouseEventArgs.Move(x*MoveScale, y*MoveScale));
+                    _mouse.DoEvent(MouseEventArgs.Move(x * MoveScale, y * MoveScale));
                     break;
                 case CommandType.mouseClick:
                     if (cmd.Data.ToLower() == "left")
@@ -47,7 +49,9 @@ namespace WindowsSocketForms
                     }
                     else if (cmd.Data.ToLower() == "middle")
                     {
-                        //TODO?
+                        _mouse.DoEvent(MouseEventArgs.MiddleDown());
+                        Thread.Sleep(100);
+                        _mouse.DoEvent(MouseEventArgs.MiddleUp());
                     }
                     break;
                 case CommandType.mouseDoubleClick:
@@ -73,7 +77,13 @@ namespace WindowsSocketForms
                     }
                     else if (cmd.Data.ToLower() == "middle")
                     {
-                        //TODO?
+                        _mouse.DoEvent(MouseEventArgs.MiddleDown());
+                        Thread.Sleep(100);
+                        _mouse.DoEvent(MouseEventArgs.MiddleUp());
+                        Thread.Sleep(100);
+                        _mouse.DoEvent(MouseEventArgs.MiddleDown());
+                        Thread.Sleep(100);
+                        _mouse.DoEvent(MouseEventArgs.MiddleUp());
                     }
                     break;
                 case CommandType.mouseDown:
@@ -87,7 +97,7 @@ namespace WindowsSocketForms
                     }
                     else if (cmd.Data.ToLower() == "middle")
                     {
-                        //TODO?
+                        _mouse.DoEvent(MouseEventArgs.MiddleDown());
                     }
                     break;
                 case CommandType.mouseUp:
@@ -101,17 +111,28 @@ namespace WindowsSocketForms
                     }
                     else if (cmd.Data.ToLower() == "middle")
                     {
-                        //TODO?
+                        _mouse.DoEvent(MouseEventArgs.MiddleUp());
                     }
                     break;
                 case CommandType.scrollUp:
-                    _mouse.DoEvent(MouseEventArgs.ScrollUp());
+                    {
+                        var amount = (int)Math.Abs(Math.Round(float.Parse(cmd.Data)));
+                        _mouse.DoEvent(MouseEventArgs.Scroll(amount));
+                    }
                     break;
                 case CommandType.scrollDown:
-                    _mouse.DoEvent(MouseEventArgs.ScrollDown());
+                    {
+                        var amount = -(int)Math.Abs(Math.Round(float.Parse(cmd.Data)));
+                        _mouse.DoEvent(MouseEventArgs.Scroll(amount));
+                    }
                     break;
                 case CommandType.keyboardString:
-                    //TODO?
+                    {
+                        var keyString = cmd.Data;
+                        //TODO come up with a decent definition of virtual and scan keys for emulation
+                        //_keyboard.DoEvent(new KeyboardEventArgs(System.Windows.Forms.Keys., 0, true));
+                        SendKeys.Send(cmd.Data); //let's see if this works as a decent alternative to actual key emulation
+                    }
                     break;
             }
         }

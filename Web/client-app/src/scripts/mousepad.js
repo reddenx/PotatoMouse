@@ -88,10 +88,10 @@ class InternalMouseEventNotifier {
         this.connection.send(CMD(COMMANDS.BUTTON_UP, 'left'));
     }
     scrollUp() {
-        this.connection.send(CMD(COMMANDS.SCROLL_UP, '_'));
+        this.connection.send(CMD(COMMANDS.SCROLL_UP, '120'));
     }
     scrollDown() {
-        this.connection.send(CMD(COMMANDS.SCROLL_DOWN, '_'));
+        this.connection.send(CMD(COMMANDS.SCROLL_DOWN, '120'));
     }
 }
 
