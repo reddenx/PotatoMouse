@@ -6,7 +6,8 @@ namespace WindowsSocketForms
 {
     public static class HttpConsts
     {
-        public const string BAD_REQUEST = @"";
+        public const string BAD_REQUEST = @"HTTP/1.0 400 Bad Request
+";
 
         public const string UPGRADE_HEADERS = @"HTTP/1.1 101 Switching Protocols
 Upgrade: websocket

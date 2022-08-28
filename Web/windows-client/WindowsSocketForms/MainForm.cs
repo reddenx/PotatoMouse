@@ -28,9 +28,6 @@ namespace WindowsSocketForms
          * */
 
         private readonly MessageHandler _handler;
-        //private readonly HttpListener _listener;
-        //private WebsocketClient _socket = null;
-        //private Thread _connectThread;
 
         public MainForm()
         {
@@ -47,53 +44,7 @@ namespace WindowsSocketForms
             listener.OnDisconnect += (o, e) => ClientDisconnected();
             listener.OnText += (o, msg) => _handler.RunCommand(msg);
             listener.Start();
-
-            //_listener = new HttpListener();
-            //_listener.Prefixes.Add("http://*:37075/");
-
-            //_connectThread = new Thread(ListenForClientLoop) { IsBackground = true };
-            //_connectThread.Start();
         }
-
-        //private void ListenForClientLoop()
-        //{
-        //    if (_socket != null)
-        //        return;
-
-        //    _listener.Start();
-        //    while (true)
-        //    {
-        //        var context = _listener.GetContextAsync().Result;
-        //        if (context.Request.IsWebSocketRequest)
-        //        {
-        //            if (_socket != null)
-        //            {
-        //                context.Response.StatusCode = 400;
-        //                context.Response.StatusDescription = "Connection Already Established";
-        //                context.Response.Close();
-        //                continue;
-        //            }
-
-        //            var socket = context.AcceptWebSocketAsync(null).Result;
-        //            _socket = new WebsocketClient(socket.WebSocket);
-        //            _socket.OnDisconnected += (o, e) => ClientDisconnected();
-        //            _socket.OnMessageReceived += (o, e) => HandleMessageReceived(e);
-        //            _socket.StartListening();
-
-        //            ClientIsConnected();
-        //        }
-        //        else
-        //        {
-        //            using (var stream = new StreamWriter(context.Response.OutputStream))
-        //            {
-        //                stream.Write(HtmlTrash.GARBO);
-        //            }
-        //            context.Response.StatusCode = 200;
-        //            context.Response.Close();
-        //        }
-        //    }
-        //    _listener.Stop();
-        //}
 
         private void GenerateQrCode()
         {
@@ -142,9 +93,6 @@ namespace WindowsSocketForms
         private void ClientDisconnected()
         {
             GenerateQrCode();
-            //ListenForClientLoop();
-            //_socket.Close();
-            //_socket = null;
         }
 
         private void HandleMessageReceived(string msg)

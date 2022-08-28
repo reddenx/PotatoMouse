@@ -41,6 +41,20 @@ namespace SMT.Utilities.InputEvents.HardwareEvents
             return new MouseEventArgs(0, 0, MouseEventDefinitions.MOUSEEVENTF_RIGHTUP, 0);
         }
 
+        public static MouseEventArgs MiddleDown()
+        {
+            return new MouseEventArgs(0, 0, MouseEventDefinitions.MOUSEEVENTF_MIDDLEDOWN, 0);
+        }
+        public static MouseEventArgs MiddlwUp()
+        {
+            return new MouseEventArgs(0, 0, MouseEventDefinitions.MOUSEEVENTF_MIDDLEUP, 0);
+        }
+
+        public static MouseEventArgs Scroll(int amount)
+        {
+            return new MouseEventArgs(0, 0, MouseEventDefinitions.MOUSEEVENTF_WHEEL, amount);
+        }
+
         public static MouseEventArgs ScrollUp()
         {
             return new MouseEventArgs(0, 0, MouseEventDefinitions.MOUSEEVENTF_WHEEL, 120);
