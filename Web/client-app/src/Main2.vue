@@ -28,6 +28,7 @@
       <video v-show="isCameraOn" class="camera-video" ref="video"></video>
     </div>
     <div v-if="mode == 'connected'">
+      {{mousepad.currentState.name}}
       <div
         class="mousepad"
         @contextmenu="eatMousepadContextMenu"

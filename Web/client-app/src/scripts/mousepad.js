@@ -9,6 +9,9 @@ const TOUCH_MOVE_TIME_THRESHOLD = 400;
 /** time to wait while holding a double click to start a drag, if lifted before this, it's considered a double click*/
 const TOUCH_DRAG_TIME_THRESHOLD = 200;
 
+const TOUCH_SCROLL_MOVE_THRESHOLD = 30;
+
+
 
 export class Mousepad {
 
@@ -77,6 +80,9 @@ class InternalMouseEventNotifier {
     }
     leftClick() {
         this.connection.send(CMD(COMMANDS.CLICK, 'left'));
+    }
+    rightClick() {
+        this.connection.send(CMD(COMMANDS.CLICK, 'right'));
     }
     leftDoubleClick() {
         this.connection.send(CMD(COMMANDS.DBLCLICK, 'left'));
@@ -185,8 +191,7 @@ class TouchOneDown extends MousepadBase {
 
     touchDown(x, y, id) {
         if (this.active && this.id1 != id) {
-            //TODO this was disabled to figure out scrolling/right click branch of state machine logic
-            //this.pad.setState(new TouchTwoDown(this, this.x1Start, this.y1Start, this.id1));
+            this.pad.setState(new TouchTwoDown(this, this.x1Start, this.y1Start, this.id1, x, y, id));
         }
     }
 
@@ -207,11 +212,12 @@ class TouchOneDown extends MousepadBase {
 }
 
 /**
- * two fingers are on the pad right now
+ * two fingers are on the pad right now 
  * from TouchOneDown, a second touch detected, this is used for scrolling
  * from here it can go to:
  * - Moving if one finger is released
  * - if released within threshhold, fire off right click before transitioning to Moving
+ * - if threshold reached or distance moved passed, move to Scrolling
  */
 class TouchTwoDown extends MousepadBase {
     constructor(previous, x1, y1, id1, x2, y2, id2) {
@@ -220,21 +226,29 @@ class TouchTwoDown extends MousepadBase {
 
         this.x1Start = x1;
         this.x2Start = x2;
+        this.x1Prev = x1;
+        this.x2Prev = x2;
         this.y1Start = y1;
         this.y2Start = y2;
+        this.y1Prev = y1;
+        this.y2Prev = y2;
         this.id1 = id1;
         this.id2 = id2;
     }
 
     activate() {
         super.activate();
-        // this.setTimeout()
+        setTimeout(() => {
+            if (this.active)
+                this.pad.setState(new TouchTwoDownScroll(this, this.x1Start, this.y1Start, this.id1, this.x2Start, this.y2Start, this.id2));
+        }, TOUCH_DRAG_TIME_THRESHOLD);
     }
     // touchDown(x, y, id) {
     //     //
     // }
     touchUp(x, y, id) {
         if (this.active) {
+            this.notifier.rightClick();
             if (this.id1 == id) {
                 this.pad.setState(new Moving(this, this.x2Start, this.y2Start, this.id2));
             } else if (this.id2 == id) {
@@ -243,6 +257,72 @@ class TouchTwoDown extends MousepadBase {
         }
     }
     touchMove(x, y, id) {
+        if (this.active && id == this.id1) {
+            //check for distance
+            var distX = Math.abs(this.x1Start - x);
+            var distY = Math.abs(this.y1Start - y);
+
+            if (Math.max(distX, distY) > TOUCH_MOVE_THRESHOLD) {
+                this.pad.setState(new TouchTwoDownScroll(this, this.x1Start, this.y1Start, this.id1, this.x2Start, this.y2Start, this.id2));
+            }
+        }
+        //else if (id == this.id2) {}
+        //for simplicity, I'll only watch touch1 for movement
+    }
+}
+
+/**
+ * two fingers are on the pad right now
+ * from TouchTwoDown, we're now scrolling
+ * from here it can go to:
+ * - Moving if one finger is released
+ */
+class TouchTwoDownScroll extends MousepadBase {
+    constructor(previous, x1, y1, id1, x2, y2, id2) {
+        super(previous);
+        this.name = 'TouchTwoDownScroll';
+
+        this.x1Start = x1;
+        this.y1Start = y1;
+        this.y1Prev = y1;
+        this.id1 = id1;
+        this.x2Start = x2;
+        this.y2Start = y2;
+        this.y2Prev = y2;
+        this.id2 = id2;
+
+        this.prevY = y1;
+    }
+
+    touchUp(x, y, id) {
+        if (this.active) {
+            if (this.id1 == id) {
+                this.pad.setState(new Moving(this, this.x2Prev, this.y2Prev, this.id2));
+            } else if (this.id2 == id) {
+                this.pad.setState(new Moving(this, this.x1Prev, this.y1Prev, this.id1));
+            } else {
+                this.name = ' ' + this.id1 + ' ' + this.id2 + ' ' + id;
+            }
+        }
+    }
+    touchMove(x, y, id) {
+        if (id == this.id1) {
+            this.y1Prev = y;
+            this.x1Prev = x;
+            
+            let diffY = this.prevY - y;
+            if (Math.abs(diffY) > TOUCH_SCROLL_MOVE_THRESHOLD) {
+                this.prevY = y;
+                if (diffY > 0)
+                    this.notifier.scrollDown();
+                else
+                    this.notifier.scrollUp();
+            }
+        }
+        else if (id == this.id2) {
+            this.y2Prev = y;
+            this.x2Prev = x;
+        }
     }
 }
 
@@ -263,8 +343,7 @@ class Moving extends MousepadBase {
 
     touchDown(x, y, id) {
         if (id != this.id1 && this.active) {
-            //TODO this was disabled to figure out scrolling/right click branch of state machine logic
-            //this.pad.setState(new TouchTwoDown(this, this.x1Start, this.y1Start, this.id1, x, y, id));
+            this.pad.setState(new TouchTwoDown(this, this.x1Start, this.y1Start, this.id1, x, y, id));
         }
     }
     touchUp(x, y, id) {
