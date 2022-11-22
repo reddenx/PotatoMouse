@@ -9,9 +9,10 @@ const TOUCH_MOVE_TIME_THRESHOLD = 400;
 /** time to wait while holding a double click to start a drag, if lifted before this, it's considered a double click*/
 const TOUCH_DRAG_TIME_THRESHOLD = 200;
 
-const TOUCH_SCROLL_MOVE_THRESHOLD = 30;
+const TOUCH_SCROLL_MOVE_THRESHOLD = 10;
 
-
+/** time to wait after two clicks for a third to start scrolling or sending a double click */
+const DOUCBLE_CLICK_WAIT_THRESHOLD = 200;
 
 export class Mousepad {
 
@@ -309,7 +310,7 @@ class TouchTwoDownScroll extends MousepadBase {
         if (id == this.id1) {
             this.y1Prev = y;
             this.x1Prev = x;
-            
+
             let diffY = this.prevY - y;
             if (Math.abs(diffY) > TOUCH_SCROLL_MOVE_THRESHOLD) {
                 this.prevY = y;
@@ -325,6 +326,8 @@ class TouchTwoDownScroll extends MousepadBase {
         }
     }
 }
+
+
 
 /**
  * From many, here any movement is sent as a move command
@@ -397,7 +400,7 @@ class TouchOneUp extends MousepadBase {
 /**
  * Here we wait for time or movement to start a click drag, if it's released fast enough it's a double click
  * can transition to:
- * - Ready if the touch is released within a given timeframe, send a double click
+ * - TouchOneUpTwo if the touch is released within a given timeframe
  * - LeftDrag if moved a given threshold or time passes
  */
 class TouchOneDownTwo extends MousepadBase {
@@ -423,8 +426,7 @@ class TouchOneDownTwo extends MousepadBase {
     // touchDown(x, y, id) { }
     touchUp(x, y, id) {
         if (this.id1 == id && this.active) {
-            this.pad.setState(new ReadyState(this));
-            this.notifier.leftDoubleClick();
+            this.pad.setState(new TouchOneUpTwo(this));
         }
     }
     touchMove(x, y, id) {
@@ -433,6 +435,81 @@ class TouchOneDownTwo extends MousepadBase {
         var distY = Math.abs(this.y1Start - y);
         if (Math.max(distX, distY) > TOUCH_MOVE_THRESHOLD && this.active) {
             this.pad.setState(new LeftDrag(this, this.x1Start, this.y1Start, id));
+        }
+    }
+}
+
+/**
+ * Here we wait for time or another click to either send a double click and reset or enter into scrolling from a third click
+ * Can transition to:
+ * - Ready (with a double click send) if time elapses without a third click
+ * - TouchOneDownThreeScrolling if a touch down event happense
+ */
+class TouchOneUpTwo extends MousepadBase {
+    /**
+     * @param {MousepadBase} previous 
+     */
+    constructor(previous) {
+        super(previous);
+        this.name = 'TouchOneUpTwo';
+    }
+
+    activate() {
+        super.activate();
+
+        setTimeout(() => {
+            if (this.active) {
+                this.pad.setState(new ReadyState(this));
+                this.notifier.leftDoubleClick();
+            }
+        }, DOUCBLE_CLICK_WAIT_THRESHOLD);
+    }
+
+    touchDown(x, y, id) {
+        if (this.active) {
+            this.pad.setState(new TouchOneDownThreeScrolling(this, x, y, id));
+        }
+    }
+}
+
+
+/**
+ * This is where scrolling happens from a third touch event
+ * Can Transition to:
+ * - Ready, when touch up is detectedf
+ */
+class TouchOneDownThreeScrolling extends MousepadBase {
+    constructor(previous, x, y, id) {
+        super(previous);
+        this.name = 'TouchOneDownThreeScrolling';
+        
+        this.xPrev = x;
+        this.yPrev = y;
+        this.id = id;
+    }
+
+    touchMove(x, y, id) {
+        if (id == this.id) {
+
+            let diffY = this.yPrev - y;
+            this.name = diffY;
+            if (Math.abs(diffY) > TOUCH_SCROLL_MOVE_THRESHOLD) {
+                this.yPrev = y;
+                if (diffY > 0)
+                    this.notifier.scrollDown();
+                else
+                    this.notifier.scrollUp();
+            }
+        }
+        else if (id == this.id2) {
+            this.y2Prev = y;
+            this.x2Prev = x;
+        }
+    }
+
+    touchUp(x,y,id) {
+        if(this.id == id) {
+            this.pad.setState(new ReadyState(this));
         }
     }
 }

@@ -26,6 +26,7 @@ namespace WindowsSocketForms
         public void RunCommand(string msg)
         {
             var cmd = JsonConvert.DeserializeObject<RemoteCommand>(msg);
+            Console.WriteLine(cmd.Type);
             switch (cmd.Type)
             {
                 case CommandType.mouseMove:
@@ -58,31 +59,31 @@ namespace WindowsSocketForms
                     if (cmd.Data.ToLower() == "left")
                     {
                         _mouse.DoEvent(MouseEventArgs.LeftDown());
-                        Thread.Sleep(100);
+                        Thread.Sleep(50);
                         _mouse.DoEvent(MouseEventArgs.LeftUp());
-                        Thread.Sleep(100);
+                        Thread.Sleep(70);
                         _mouse.DoEvent(MouseEventArgs.LeftDown());
-                        Thread.Sleep(100);
+                        Thread.Sleep(50);
                         _mouse.DoEvent(MouseEventArgs.LeftUp());
                     }
                     else if (cmd.Data.ToLower() == "right")
                     {
                         _mouse.DoEvent(MouseEventArgs.RightDown());
-                        Thread.Sleep(100);
+                        Thread.Sleep(50);
                         _mouse.DoEvent(MouseEventArgs.RightUp());
-                        Thread.Sleep(100);
+                        Thread.Sleep(70);
                         _mouse.DoEvent(MouseEventArgs.RightDown());
-                        Thread.Sleep(100);
+                        Thread.Sleep(50);
                         _mouse.DoEvent(MouseEventArgs.RightUp());
                     }
                     else if (cmd.Data.ToLower() == "middle")
                     {
                         _mouse.DoEvent(MouseEventArgs.MiddleDown());
-                        Thread.Sleep(100);
+                        Thread.Sleep(50);
                         _mouse.DoEvent(MouseEventArgs.MiddleUp());
-                        Thread.Sleep(100);
+                        Thread.Sleep(70);
                         _mouse.DoEvent(MouseEventArgs.MiddleDown());
-                        Thread.Sleep(100);
+                        Thread.Sleep(50);
                         _mouse.DoEvent(MouseEventArgs.MiddleUp());
                     }
                     break;
