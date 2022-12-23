@@ -179,7 +179,7 @@ namespace WindowsSocketForms
                     }
                 }
             }
-            catch(Exception e) 
+            catch (Exception e)
             {
 
             }
@@ -270,9 +270,16 @@ namespace WindowsSocketForms
         private Frame ReadFrame(NetworkStream stream)
         {
             var buffer = new byte[2];
-            var readByteCount = stream.Read(buffer, 0, 2);
-            if (readByteCount == 0)
+            try
+            {
+                var readByteCount = stream.Read(buffer, 0, 2);
+                if (readByteCount == 0)
+                    return null;
+            }
+            catch
+            {
                 return null;
+            }
 
             var frame = new Frame();
 
@@ -335,7 +342,7 @@ namespace WindowsSocketForms
             if (frame.PayloadLength > 0)
             {
                 var payloadBuffer = new byte[frame.PayloadLength];
-                readByteCount = stream.Read(payloadBuffer, 0, payloadBuffer.Length);
+                var readByteCount = stream.Read(payloadBuffer, 0, payloadBuffer.Length);
 
                 if (frame.Masked)
                 {
@@ -353,6 +360,6 @@ namespace WindowsSocketForms
             }
 
             return frame;
+            }
         }
     }
-}
