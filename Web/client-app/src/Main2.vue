@@ -1,23 +1,11 @@
 <template>
   <div>
     <div v-if="mode == 'scanning'">
-      <button
-        class="start-scanning-button"
-        @click="scanButtonPressed"
-        :disabled="isAttemptingConnection"
-      >
+      <button class="start-scanning-button" @click="scanButtonPressed" :disabled="isAttemptingConnection">
         Scan!
       </button>
-      <input
-        type="text"
-        v-model="connectionString"
-        :disabled="isAttemptingConnection"
-      />
-      <button
-        type="button"
-        @click="connectButtonPressed"
-        :disabled="isCameraOn || isAttemptingConnection"
-      >
+      <input type="text" v-model="connectionString" :disabled="isAttemptingConnection" />
+      <button type="button" @click="connectButtonPressed" :disabled="isCameraOn || isAttemptingConnection">
         Connect!
       </button>
       <br />
@@ -28,22 +16,17 @@
       <video v-show="isCameraOn" class="camera-video" ref="video"></video>
     </div>
     <div v-if="mode == 'connected'">
-      {{mousepad.currentState.name}}
-      <div
-        class="mousepad"
-        @contextmenu="eatMousepadContextMenu"
-        @touchstart="mousepadTouchStart"
-        @touchmove="mousepadTouchMove"
-        @touchcancel="mousepadTouchCancel"
-        @touchend="mousepadTouchEnd"
-      ></div>
+      {{ mousepad.currentState.name }}
+      <input type="text" v-model="keyboardInputText" /> <button @click="sendKeyboardText">Send</button>
+      <div class="mousepad" @contextmenu="eatMousepadContextMenu" @touchstart="mousepadTouchStart"
+        @touchmove="mousepadTouchMove" @touchcancel="mousepadTouchCancel" @touchend="mousepadTouchEnd"></div>
     </div>
   </div>
 </template>
 
 <script>
 import { Connection } from "./scripts/socket";
-import { Mousepad } from "./scripts/mousepad";
+import { Mousepad, CMD } from "./scripts/mousepad";
 import { BrowserQRCodeReader } from "@zxing/library";
 
 const CONNECTION_PORT = "37075";
@@ -52,6 +35,7 @@ const CONNECTION_PREFIX = "ws://";
 export default {
   data: () => ({
     mode: "scanning",
+    keyboardInputText: "",
     isCameraOn: false,
     connection: new Connection(),
     connectionString: "",
@@ -72,7 +56,7 @@ export default {
 
     let parts = window.location.href.split("/");
     let ip = parts[parts.lastIndexOf("#") + 1];
-    if(ip) {
+    if (ip) {
       this.connectionString = ip;
       this.connectButtonPressed();
     }
@@ -85,6 +69,13 @@ export default {
     connectButtonPressed() {
       this.isAttemptingConnection = true;
       this.connection.connect(this.formattedConnectionString);
+    },
+    async sendKeyboardText() {
+      if (!this.keyboardInputText)
+        return;
+
+      await this.connection.send(CMD("keyboardString", this.keyboardInputText));
+      this.keyboardInputText = "";
     },
 
     transitionToConnected() {
@@ -128,7 +119,7 @@ export default {
         this.isAttemptingConnection = false;
       } else this.transitionToDisconnected();
     },
-    handleMessage(msg) {},
+    handleMessage(msg) { },
     handleConnect() {
       this.isAttemptingConnection = false;
       this.transitionToConnected();
@@ -177,6 +168,7 @@ export default {
   min-height: 100vh;
   border: 1px solid black;
 }
+
 .mousepad {
   height: 90vh;
   width: 90vw;

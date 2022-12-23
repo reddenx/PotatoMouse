@@ -47,7 +47,7 @@ export class Mousepad {
     }
 }
 
-function CMD(commandType, data) {
+export function CMD(commandType, data) {
     return JSON.stringify({
         type: commandType,
         data: data

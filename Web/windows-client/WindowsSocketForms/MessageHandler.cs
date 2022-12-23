@@ -132,7 +132,7 @@ namespace WindowsSocketForms
                         var keyString = cmd.Data;
                         //TODO come up with a decent definition of virtual and scan keys for emulation
                         //_keyboard.DoEvent(new KeyboardEventArgs(System.Windows.Forms.Keys., 0, true));
-                        SendKeys.Send(cmd.Data); //let's see if this works as a decent alternative to actual key emulation
+                        SendKeys.SendWait(cmd.Data); //let's see if this works as a decent alternative to actual key emulation
                     }
                     break;
             }
