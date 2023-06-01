@@ -14,8 +14,6 @@ namespace WindowsSocketForms
     {
         public const int PORT = 37075;
 
-        public bool IsListening { get; private set; } = false;
-
         private TcpListener _listener = null;
         private Thread _acceptThread = null;
         private TcpClient _client = null;
@@ -56,7 +54,7 @@ namespace WindowsSocketForms
                     if (readCount == 0)
                     {
                         stream.Close();
-                        break;
+                        continue;
                     }
 
                     var rawRequestStr = Encoding.UTF8.GetString(buffer, 0, readCount);
@@ -94,7 +92,15 @@ namespace WindowsSocketForms
                 }
             }
             catch { }
-            _listener.Stop();
+            try
+            {
+                _listener.Stop();
+            }
+            catch { }
+            _listener = null;
+
+            Start();
+            //if it all fails, why not just fucken kick it off again?
         }
 
         private bool IsWebsiteRequest(string rawRequestStr)
@@ -171,7 +177,7 @@ namespace WindowsSocketForms
                     else if (frame.GetFrameType() == Frame.FrameTypes.Close)
                     {
                         //TODO: send close message, this is an invalid way to close a websocket as a server
-                        break;
+                        continue;
                     }
                     else
                     {
