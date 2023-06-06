@@ -185,10 +185,7 @@ namespace WindowsSocketForms
                     }
                 }
             }
-            catch (Exception e)
-            {
-
-            }
+            catch { }
 
             //TODO: send close message, this is an invalid way to close a websocket as a server
             try { _client.Close(); }

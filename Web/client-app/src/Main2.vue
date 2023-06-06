@@ -1,46 +1,38 @@
 <template>
-  <div>
-    <div v-if="mode == 'scanning'">
-      <button class="start-scanning-button" @click="scanButtonPressed" :disabled="isAttemptingConnection">
-        Scan!
+  <div class="container">
+
+    <div v-if="connectionStatus == 'disconnected'">
+      <button type="button" class="reconnect-button" @click="connectButtonPressed" :disabled="isAttemptingConnection">
+        Reconnect
       </button>
-      <input type="text" v-model="connectionString" :disabled="isAttemptingConnection" />
-      <button type="button" @click="connectButtonPressed" :disabled="isCameraOn || isAttemptingConnection">
-        Connect!
-      </button>
-      <br />
-      <div v-show="connectionString">
-        {{ formattedConnectionString }}
+    </div>
+
+    <div v-if="connectionStatus == 'connected'">
+      <span v-if="isDebugMode">{{ mousepad.currentState.name }}</span>
+      <input type="text" class="send-input" v-model="keyboardInputText" />
+      <button @click="sendKeyboardText" class="send-button">Send</button>
+      <div class="mousepad" @contextmenu="eatMousepadContextMenu" @touchstart="mousepadTouchStart" @touchmove="mousepadTouchMove" @touchcancel="mousepadTouchCancel" @touchend="mousepadTouchEnd">
       </div>
-      <br />
-      <video v-show="isCameraOn" class="camera-video" ref="video"></video>
     </div>
-    <div v-if="mode == 'connected'">
-      {{ mousepad.currentState.name }}
-      <input type="text" v-model="keyboardInputText" /> <button @click="sendKeyboardText">Send</button>
-      <div class="mousepad" @contextmenu="eatMousepadContextMenu" @touchstart="mousepadTouchStart"
-        @touchmove="mousepadTouchMove" @touchcancel="mousepadTouchCancel" @touchend="mousepadTouchEnd"></div>
-    </div>
+
   </div>
 </template>
 
 <script>
 import { Connection } from "./scripts/socket";
 import { Mousepad, CMD } from "./scripts/mousepad";
-import { BrowserQRCodeReader } from "@zxing/library";
 
 const CONNECTION_PORT = "37075";
 const CONNECTION_PREFIX = "ws://";
 
 export default {
   data: () => ({
-    mode: "scanning",
+    connectionStatus: "disconnected",
+    isDebugMode: false,
     keyboardInputText: "",
-    isCameraOn: false,
     connection: new Connection(),
     connectionString: "",
     mousepad: {},
-    reader: new BrowserQRCodeReader(1000),
     isAttemptingConnection: false,
   }),
   computed: {
@@ -49,23 +41,27 @@ export default {
     },
   },
   mounted() {
+    //register connection handling
     this.connection.registerMessageHandler(this.handleMessage);
     this.connection.registerDisconnectHandler(this.handleDisconnect);
     this.connection.registerConnectHandler(this.handleConnect);
+
+    //setup mousepad with connection
     this.mousepad = new Mousepad(this.connection);
 
+    //parse data from uri, uses host to connect or override ip in first route after /#/
     let parts = window.location.href.split("/");
-    let ip = parts[parts.lastIndexOf("#") + 1];
-    if (ip) {
-      this.connectionString = ip;
-      this.connectButtonPressed();
+    let hostname = window.location.hostname;
+    this.connectionString = hostname;
+    if(parts.includes("#")) {
+      let overrideIp = parts[parts.lastIndexOf("#") + 1];
+      this.connectionString = overrideIp || hostname;
     }
+    this.isDebugMode = parts.includes("debug");
+
+    this.connectButtonPressed();
   },
   methods: {
-    scanButtonPressed() {
-      if (this.isCameraOn) this.stopScanning();
-      else this.startScanning();
-    },
     connectButtonPressed() {
       this.isAttemptingConnection = true;
       this.connection.connect(this.formattedConnectionString);
@@ -79,43 +75,13 @@ export default {
     },
 
     transitionToConnected() {
-      this.reader.reset();
-      this.isCameraOn = false;
-      this.mode = "connected";
+      this.connectionStatus = "connected";
     },
     transitionToDisconnected() {
-      this.mode = "scanning";
-    },
-
-    async startScanning() {
-      this.isCameraOn = true;
-      try {
-        let devices = await this.reader.listVideoInputDevices();
-
-        if (!devices.length) {
-          this.isCameraOn = false;
-          return;
-        }
-
-        let result = await this.reader.decodeOnceFromVideoDevice(
-          devices[0].deviceId,
-          this.$refs.video
-        );
-        this.reader.reset();
-        this.isCameraOn = false;
-        this.connectionString = result.getText();
-        this.connectButtonPressed();
-      } catch {
-        this.reader.reset();
-        this.isCameraOn = false;
-      }
-    },
-    stopScanning() {
-      this.reader.reset();
-      this.isCameraOn = false;
+      this.connectionStatus = "disconnected";
     },
     handleDisconnect() {
-      if (this.mode == "scanning") {
+      if (this.connectionStatus == "disconnected") {
         this.isAttemptingConnection = false;
       } else this.transitionToDisconnected();
     },
@@ -163,16 +129,31 @@ export default {
 </script>
 
 <style>
-.camera-video {
-  min-width: 100vw;
-  min-height: 100vh;
-  border: 1px solid black;
-}
-
 .mousepad {
-  height: 90vh;
-  width: 90vw;
+  height: 100vh;
+  width: 100%;
   background-color: gray;
   touch-action: none;
+}
+
+.reconnect-button {
+  width: 100vw;
+  height: 100vh;
+}
+
+.container {
+  margin: 0;
+  padding: 0;
+  overflow:none;
+}
+
+.send-input {
+  width: calc(100% - 6em);
+  box-sizing: border-box;
+  font-size: 16px;
+}
+.send-button {
+  width:6em;
+  font-size: 16px;
 }
 </style>

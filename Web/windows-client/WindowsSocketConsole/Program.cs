@@ -33,10 +33,10 @@ namespace WindowsSocketConsole
             {
                 Console.WriteLine("disconnected");
             };
-            socket.OnMessageReceived += (o, e) =>
+            socket.OnMessageReceived += async (o, e) =>
             {
                 Console.WriteLine(e);
-                socket.Send($"hi {e} I'm dad");
+                await socket.Send($"hi {e} I'm dad");
             };
             socket.StartListening();
 
