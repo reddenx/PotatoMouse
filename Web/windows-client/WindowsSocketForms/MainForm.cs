@@ -50,13 +50,13 @@ namespace WindowsSocketForms
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
             var ip = host.AddressList.FirstOrDefault(h => h.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-            var data = QRCodeGenerator.GenerateQrCode($"http://{ip}:37075/#/{ip}", QRCodeGenerator.ECCLevel.L);
+            var data = QRCodeGenerator.GenerateQrCode($"http://{ip}:37075", QRCodeGenerator.ECCLevel.L);
             var code = new QRCode(data);
             var image = code.GetGraphic(20);
 
-            var bgImage = ImageGenerator.CloseResize(image, new Size(this.Width, this.Height));
-
-            this.BackgroundImage = bgImage;
+            this.BackColor = Color.Red;
+            this.BackgroundImage = image;
+            this.BackgroundImageLayout = ImageLayout.Stretch;
             HideControls();
         }
 
