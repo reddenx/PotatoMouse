@@ -144,7 +144,8 @@ export default {
 .container {
   margin: 0;
   padding: 0;
-  overflow:none;
+  overflow: hidden;
+  max-height: 100vh;
 }
 
 .send-input {
