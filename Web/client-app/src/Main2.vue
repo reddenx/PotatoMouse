@@ -31,7 +31,7 @@
                         &#x23EA;&#xFE0E;
                     </button>
                     <button class="media-button" @click="handlePausePressed">
-                        &#x23f8;/&#x23f5;
+                        &#x23f8;&#xFE0E;/&#x23f5;
                     </button>
                     <button class="media-button" @click="handleNextPressed">
                         &#x23E9;&#xFE0E;

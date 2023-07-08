@@ -134,16 +134,21 @@ namespace WindowsSocketForms
                         //_keyboard.DoEvent(new KeyboardEventArgs(System.Windows.Forms.Keys., 0, true));
                         switch(cmd.Data)
                         {
-                            //because sendkeys doesnt have media buttons wtf??
-                            //yes this is dumb, I'm in a hurry
+                            //because sendkeys doesnt have media buttons ugh
                             case "{MediaPreviousTrack}":
-                                SendKeys.SendWait("" + (char)177);
+                                _keyboard.DoEvent(new KeyboardEventArgs(Keys.MediaPreviousTrack, 10, true));
+                                Thread.Sleep(50);
+                                _keyboard.DoEvent(new KeyboardEventArgs(Keys.MediaPreviousTrack, 10, false));
                                 break;
                             case "{MediaPlayPause}":
-                                SendKeys.SendWait("" + (char)179);
+                                _keyboard.DoEvent(new KeyboardEventArgs(Keys.MediaPlayPause, 10, true));
+                                Thread.Sleep(50);
+                                _keyboard.DoEvent(new KeyboardEventArgs(Keys.MediaPlayPause, 10, false));
                                 break;
                             case "{MediaNextTrack}":
-                                SendKeys.SendWait("" + (char)176);
+                                _keyboard.DoEvent(new KeyboardEventArgs(Keys.MediaNextTrack, 10, true));
+                                Thread.Sleep(50);
+                                _keyboard.DoEvent(new KeyboardEventArgs(Keys.MediaNextTrack, 10, false));
                                 break;
                             default:
                                 SendKeys.SendWait(cmd.Data); //let's see if this works as a decent alternative to actual key emulation
