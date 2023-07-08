@@ -28,13 +28,13 @@
                 </div>
                 <div class="control-row">
                     <button class="media-button" @click="handlePrevPressed">
-                        &#x23EA;&#xFE0E;
+                        &lt;
                     </button>
                     <button class="media-button" @click="handlePausePressed">
-                        &#x23f8;&#xFE0E;/&#x23f5;
+                        ||
                     </button>
                     <button class="media-button" @click="handleNextPressed">
-                        &#x23E9;&#xFE0E;
+                        &gt;
                     </button>
                 </div>
             </div>
