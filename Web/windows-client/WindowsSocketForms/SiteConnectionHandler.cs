@@ -32,10 +32,14 @@ namespace WindowsSocketForms
             if (_listener == null)
             {
                 _listener = new TcpListener(IPAddress.Any, PORT);
-                if (_acceptThread != null)
-                    _acceptThread.Abort();
+
+                var previousThread = _acceptThread;
+
                 _acceptThread = new Thread(AcceptLoop) { IsBackground = true };
                 _acceptThread.Start();
+
+                if (previousThread != null)
+                    previousThread.Abort();
             }
         }
 
@@ -99,8 +103,11 @@ namespace WindowsSocketForms
             catch { }
             _listener = null;
 
-            Start();
-            //if it all fails, why not just fucken kick it off again?
+            try
+            {
+                Start();
+            }
+            catch (ThreadAbortException) { }
         }
 
         private bool IsWebsiteRequest(string rawRequestStr)
@@ -291,7 +298,7 @@ namespace WindowsSocketForms
             frame.Fin = buffer[0] >> 7 == 1;
 
             //Three reserved seats, we don't need them
-            frame.Rsv1 = (buffer[0] >> 6 & 1) == 1;
+            frame.Rsv1 = (buffer[0] >> 6 & 1) == 1; //method: shift n bits, then and with 1 to only grab the first bit, allowing single bit targeting
             frame.Rsv2 = (buffer[0] >> 5 & 1) == 1;
             frame.Rsv3 = (buffer[0] >> 4 & 1) == 1;
 
@@ -363,6 +370,6 @@ namespace WindowsSocketForms
             }
 
             return frame;
-            }
         }
     }
+}
