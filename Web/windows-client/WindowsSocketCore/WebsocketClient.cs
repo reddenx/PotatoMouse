@@ -46,6 +46,27 @@ namespace WindowsSocketCore
 
         public async Task Close()
         {
+            //note: this is called internally from the end of the message loop
+
+            switch (_socket.State)
+            {
+                case WebSocketState.Aborted:
+                case WebSocketState.Closed:
+                    //done do nothing
+                    break;
+                case WebSocketState.CloseReceived:
+                case WebSocketState.CloseSent:
+                    //in the process of closing, let the library handle the handshake
+                    break;
+                case WebSocketState.Connecting:
+                case WebSocketState.None:
+                case WebSocketState.Open:
+                    //do the close
+                    await _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
+                    break;
+            }
+
+
             lock (this)
             {
                 if (!_hasFiredDisconnectEvents)
@@ -53,7 +74,7 @@ namespace WindowsSocketCore
                 else
                     return;
             }
-            await _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
+            this.IsListening = false;
             OnDisconnected?.Invoke(this, EventArgs.Empty);
         }
 
@@ -62,10 +83,11 @@ namespace WindowsSocketCore
             var buffer = WebSocket.CreateClientBuffer(1024, 1024);
             try
             {
-                while (true)
+                WebSocketReceiveResult msgMeta;
+                do
                 {
                     var msgTask = _socket.ReceiveAsync(buffer, CancellationToken.None);
-                    var msgMeta = msgTask.Result;
+                    msgMeta = msgTask.Result;
 
                     switch (msgMeta.MessageType)
                     {
@@ -84,19 +106,13 @@ namespace WindowsSocketCore
                             //???
                             break;
                     }
-                }
+
+                } while (msgMeta.MessageType != WebSocketMessageType.Close);
             }
             catch { }
-            this.IsListening = false;
 
-            lock (this)
-            {
-                if (!_hasFiredDisconnectEvents)
-                    _hasFiredDisconnectEvents = true;
-                else
-                    return;
-            }
-            OnDisconnected?.Invoke(this, EventArgs.Empty);
+            this.IsListening = false;
+            this.Close().Wait();
         }
 
 

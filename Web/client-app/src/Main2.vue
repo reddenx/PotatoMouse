@@ -150,6 +150,8 @@ export default {
             [...e.changedTouches].forEach((t) =>
                 this.mousepad.inputTouchDown(t.screenX, t.screenY, t.identifier)
             );
+            e.preventDefault();
+            e.stopPropagation();
         },
         mousepadTouchMove(e) {
             //console.log("tmove", e);
@@ -160,18 +162,24 @@ export default {
                     t.identifier
                 )
             );
+            e.preventDefault();
+            e.stopPropagation();
         },
         mousepadTouchCancel(e) {
             // console.log("tcancel", e);
             [...e.changedTouches].forEach((t) =>
                 this.mousepad.inputTouchUp(t.screenX, t.screenY, t.identifier)
             );
+            e.preventDefault();
+            e.stopPropagation();
         },
         mousepadTouchEnd(e) {
             // console.log("tend", e);
             [...e.changedTouches].forEach((t) =>
                 this.mousepad.inputTouchUp(t.screenX, t.screenY, t.identifier)
             );
+            e.preventDefault();
+            e.stopPropagation();
         },
     },
 };
