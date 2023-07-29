@@ -54,7 +54,7 @@ namespace WindowsSocketForms
             var code = new QRCode(data);
             var image = code.GetGraphic(20);
 
-            this.BackColor = Color.Red;
+            // this.BackColor = Color.Red;
             this.BackgroundImage = image;
             this.BackgroundImageLayout = ImageLayout.Stretch;
             HideControls();

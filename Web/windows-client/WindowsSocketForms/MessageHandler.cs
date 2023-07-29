@@ -132,7 +132,28 @@ namespace WindowsSocketForms
                         var keyString = cmd.Data;
                         //TODO come up with a decent definition of virtual and scan keys for emulation
                         //_keyboard.DoEvent(new KeyboardEventArgs(System.Windows.Forms.Keys., 0, true));
-                        SendKeys.SendWait(cmd.Data); //let's see if this works as a decent alternative to actual key emulation
+                        switch(cmd.Data)
+                        {
+                            //because sendkeys doesnt have media buttons ugh
+                            case "{MediaPreviousTrack}":
+                                _keyboard.DoEvent(new KeyboardEventArgs(Keys.MediaPreviousTrack, 10, true));
+                                Thread.Sleep(50);
+                                _keyboard.DoEvent(new KeyboardEventArgs(Keys.MediaPreviousTrack, 10, false));
+                                break;
+                            case "{MediaPlayPause}":
+                                _keyboard.DoEvent(new KeyboardEventArgs(Keys.MediaPlayPause, 10, true));
+                                Thread.Sleep(50);
+                                _keyboard.DoEvent(new KeyboardEventArgs(Keys.MediaPlayPause, 10, false));
+                                break;
+                            case "{MediaNextTrack}":
+                                _keyboard.DoEvent(new KeyboardEventArgs(Keys.MediaNextTrack, 10, true));
+                                Thread.Sleep(50);
+                                _keyboard.DoEvent(new KeyboardEventArgs(Keys.MediaNextTrack, 10, false));
+                                break;
+                            default:
+                                SendKeys.SendWait(cmd.Data); //let's see if this works as a decent alternative to actual key emulation
+                                break;
+                        }
                     }
                     break;
             }
