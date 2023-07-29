@@ -5,8 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
+using WindowsSocketCore;
 
 namespace WindowsSocketForms
 {
@@ -16,7 +18,7 @@ namespace WindowsSocketForms
 
         private TcpListener _listener = null;
         private Thread _acceptThread = null;
-        private TcpClient _client = null;
+        private WebsocketClient _client = null;
         private Thread _clientThread = null;
 
         public event EventHandler<string> OnText;
@@ -144,13 +146,23 @@ namespace WindowsSocketForms
             stream.Write(responseBuffer);
 
             //kickoff the client thread
-            _client = client;
+            var websock = new WebsocketClient(WebSocket.CreateFromStream(client.GetStream(), true, null, Timeout.InfiniteTimeSpan));
+            _client = websock;
+            websock.OnDisconnected += (s, e) => { this.OnDisconnect(this, EventArgs.Empty); };
+            websock.OnMessageReceived += (s, e) => { this.OnText(this, e); };
+            websock.OnDisconnected += (s, e) => 
+            {
+                websock.Close();
+                _client = null;
+                this.OnDisconnect(this, e); 
+            };
+            websock.StartListening();
 
-            if (_clientThread != null)
-                _clientThread.Abort();
+            //if (_clientThread != null)
+            //    _clientThread.Abort();
 
-            _clientThread = new Thread(ClientThreadLoop) { IsBackground = true };
-            _clientThread.Start();
+            //_clientThread = new Thread(ClientThreadLoop) { IsBackground = true };
+            //_clientThread.Start();
         }
 
         private bool IsWebsocketUpgrade(string rawRequestStr)
@@ -158,51 +170,51 @@ namespace WindowsSocketForms
             return rawRequestStr.StartsWith("GET") && rawRequestStr.Contains("Upgrade: websocket");
         }
 
-        private void ClientThreadLoop()
-        {
-            try
-            {
-                var stream = _client.GetStream();
-                while (true)
-                {
-                    var frame = ReadFrame(stream);
+        //private void ClientThreadLoop()
+        //{
+        //    try
+        //    {
+        //        var stream = _client.GetStream();
+        //        while (true)
+        //        {
+        //            var frame = ReadFrame(stream);
 
-                    if (!frame.Fin)
-                    {
-                        var frameList = new List<Frame>(new[] { frame });
-                        Frame nextFrame;
-                        do
-                        {
-                            nextFrame = ReadFrame(stream);
-                            frameList.Add(nextFrame);
-                        }
-                        while (nextFrame.Fin || nextFrame.GetFrameType() != Frame.FrameTypes.Multipart);
+        //            if (!frame.Fin)
+        //            {
+        //                var frameList = new List<Frame>(new[] { frame });
+        //                Frame nextFrame;
+        //                do
+        //                {
+        //                    nextFrame = ReadFrame(stream);
+        //                    frameList.Add(nextFrame);
+        //                }
+        //                while (nextFrame.Fin || nextFrame.GetFrameType() != Frame.FrameTypes.Multipart);
 
-                        //HandleMultiMessage(frameList);
-                        new NotImplementedException("TODO: handling of multipart messages still not implemented");
-                    }
-                    else if (frame.GetFrameType() == Frame.FrameTypes.Close)
-                    {
-                        //TODO: send close message, this is an invalid way to close a websocket as a server
-                        continue;
-                    }
-                    else
-                    {
-                        HandleMessage(frame);
-                    }
-                }
-            }
-            catch { }
+        //                //HandleMultiMessage(frameList);
+        //                new NotImplementedException("TODO: handling of multipart messages still not implemented");
+        //            }
+        //            else if (frame.GetFrameType() == Frame.FrameTypes.Close)
+        //            {
+        //                //TODO: send close message, this is an invalid way to close a websocket as a server
+        //                continue;
+        //            }
+        //            else
+        //            {
+        //                HandleMessage(frame);
+        //            }
+        //        }
+        //    }
+        //    catch { }
 
-            //TODO: send close message, this is an invalid way to close a websocket as a server
-            try { _client.Close(); }
-            catch { }
+        //    //TODO: send close message, this is an invalid way to close a websocket as a server
+        //    try { _client.Close(); }
+        //    catch { }
 
-            _client = null;
-            _clientThread = null;
+        //    _client = null;
+        //    _clientThread = null;
 
-            OnDisconnect?.Invoke(this, EventArgs.Empty);
-        }
+        //    OnDisconnect?.Invoke(this, EventArgs.Empty);
+        //}
 
         private void HandleMessage(Frame frame)
         {
