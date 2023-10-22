@@ -102,7 +102,7 @@ namespace WindowsSocketCore
 
                     try
                     {
-                        var request = ParseRequest(rawRequestStr);
+                        var request = Request.Parse(rawRequestStr);
                         var handler = new ResponseHandler(request, stream);
                         this.OnRequest(this, request, handler);
                         if (!handler.IsResolved)
@@ -132,27 +132,6 @@ namespace WindowsSocketCore
             }
             else
                 Stop();
-        }
-
-        private Request ParseRequest(string rawRequestStr)
-        {
-            var lines = rawRequestStr.Split("\r\n");
-            var firstLineTokens = lines[0].Split(" ");
-
-            var headers = lines.Skip(1).TakeWhile(l => l != "").Select(h => 
-            {
-                var headerTokens = h.Split(":");
-                return new KeyValuePair<string,string>(headerTokens[0].Trim(), headerTokens[1].Trim());
-            }).ToArray();
-            var bodyLines = lines.SkipWhile(l => l != "").ToArray();
-            
-            return new Request()
-            {
-                Url = firstLineTokens[1],
-                Verb = firstLineTokens[0],
-                Headers = headers,
-                Body = bodyLines.FirstOrDefault(l => l != ""),
-            };
         }
     }
 }

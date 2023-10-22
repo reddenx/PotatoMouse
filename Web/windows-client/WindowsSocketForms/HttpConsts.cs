@@ -6,35 +6,11 @@ namespace WindowsSocketForms
 {
     public static class HttpConsts
     {
-
-        public const string BAD_REQUEST = @"HTTP/1.0 400 Bad Request
-        ";
-
-        public const string UPGRADE_HEADERS = @"HTTP/1.1 101 Switching Protocols
-Upgrade: websocket
-Connection: Upgrade
-";
-        public const string SOCKET_SEC_KEY_HEADER = @"Sec-WebSocket-Key: ";
-
         /* instructions:
          * - npm run build on client app
          * - replace " with "" in your favorite editor
          * - copy new script tag over existing one below
          */
-        public const string WEBSITE = @"HTTP/1.0 200 OK
-Content-Type: text/html
-Cache-Control: no-cache
-
-" + WEBSITE_BODY;
-
-
-
-        /* instructions:
-         * - npm run build on client app
-         * - replace " with "" in your favorite editor
-         * - copy new script tag over existing one below
-         */
-        // public const string WEBSITE = @"HTTP/1.0 200 OK
 
         public static readonly KeyValuePair<string, string>[] WEBSITE_HEADERS = new KeyValuePair<string, string>[]
         {
