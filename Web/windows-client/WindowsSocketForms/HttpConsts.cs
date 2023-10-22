@@ -6,25 +6,19 @@ namespace WindowsSocketForms
 {
     public static class HttpConsts
     {
-        public const string BAD_REQUEST = @"HTTP/1.0 400 Bad Request
-";
-
-        public const string UPGRADE_HEADERS = @"HTTP/1.1 101 Switching Protocols
-Upgrade: websocket
-Connection: Upgrade
-";
-        public const string SOCKET_SEC_KEY_HEADER = @"Sec-WebSocket-Key: ";
-
         /* instructions:
          * - npm run build on client app
          * - replace " with "" in your favorite editor
          * - copy new script tag over existing one below
-         */ 
-        public const string WEBSITE = @"HTTP/1.0 200 OK
-Content-Type: text/html
-Cache-Control: no-cache
+         */
 
-<!doctype html><html lang=""""><head><meta charset=""utf-8""><meta http-equiv=""X-UA-Compatible"" content=""IE=edge""><meta name=""viewport"" content=""width=device-width,initial-scale=1,maximum-scale=1""><title>client-app</title><script defer=""defer"" src=""/js/app.9580b5a9.js""></script></head><body style=""margin: 0; padding: 0""><noscript><strong>We're sorry but client-app doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id=""app""></div>
+        public static readonly KeyValuePair<string, string>[] WEBSITE_HEADERS = new KeyValuePair<string, string>[]
+        {
+                new KeyValuePair<string, string>("Content-Type", "text/html"),
+                new KeyValuePair<string, string>("Cache-Control", "no-cache"),
+        };
+
+        public const string WEBSITE_BODY = @"<!doctype html><html lang=""""><head><meta charset=""utf-8""><meta http-equiv=""X-UA-Compatible"" content=""IE=edge""><meta name=""viewport"" content=""width=device-width,initial-scale=1,maximum-scale=1""><title>client-app</title><script defer=""defer"" src=""/js/app.9580b5a9.js""></script></head><body style=""margin: 0; padding: 0""><noscript><strong>We're sorry but client-app doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id=""app""></div>
 
 
 <script>

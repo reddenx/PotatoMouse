@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
+using System.Linq;
+using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -7,48 +8,43 @@ using System.Threading.Tasks;
 
 namespace WindowsSocketCore
 {
-    public class WebsocketClient
+    public interface IWebsocketConnection
     {
-        private readonly WebSocket _socket;
-        private Thread _messageLoop;
+        event EventHandler<string> OnText;
+        event EventHandler<byte[]> OnBinary;
+        event EventHandler OnDisconnected;
 
-        public event EventHandler<string> OnMessageReceived;
+        Task Send(string message);
+        Task Send(byte[] data);
+        Task Close();
+    }
+
+    public class WebsocketConnection : IWebsocketConnection
+    {
+        public event EventHandler<string> OnText;
+        public event EventHandler<byte[]> OnBinary;
         public event EventHandler OnDisconnected;
-
-        public bool IsListening { get; private set; } = false;
-        public bool IsConnected => _socket.State == WebSocketState.Open;
         private bool _hasFiredDisconnectEvents = false;
 
-        public WebsocketClient(WebSocket socket)
+        public bool IsConnected => _client.State == WebSocketState.Open;
+
+        private readonly Request _initialRequest;
+        private readonly WebSocket _client;
+        private readonly Thread _messageLoop;
+
+        public WebsocketConnection(Request initialRequest, WebSocket client)
         {
-            _socket = socket;
+            _initialRequest = initialRequest;
+            _client = client;
             _messageLoop = new Thread(MessageLoop) { IsBackground = true };
-        }
-
-        public void StartListening()
-        {
-            lock (this)
-            {
-                if (IsListening)
-                    return;
-                else
-                    IsListening = true;
-            }
-
             _messageLoop.Start();
-        }
-
-        public async Task Send(string message)
-        {
-            var bytes = ASCIIEncoding.ASCII.GetBytes(message);
-            await _socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
         public async Task Close()
         {
             //note: this is called internally from the end of the message loop
 
-            switch (_socket.State)
+            switch (_client.State)
             {
                 case WebSocketState.Aborted:
                 case WebSocketState.Closed:
@@ -62,7 +58,7 @@ namespace WindowsSocketCore
                 case WebSocketState.None:
                 case WebSocketState.Open:
                     //do the close
-                    await _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
+                    await _client.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
                     break;
             }
 
@@ -74,8 +70,18 @@ namespace WindowsSocketCore
                 else
                     return;
             }
-            this.IsListening = false;
             OnDisconnected?.Invoke(this, EventArgs.Empty);
+        }
+
+        public async Task Send(string message)
+        {
+            var bytes = Encoding.ASCII.GetBytes(message);
+            await Send(bytes);
+        }
+
+        public async Task Send(byte[] data)
+        {
+            await _client.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
         private void MessageLoop()
@@ -86,21 +92,22 @@ namespace WindowsSocketCore
                 WebSocketReceiveResult msgMeta;
                 do
                 {
-                    var msgTask = _socket.ReceiveAsync(buffer, CancellationToken.None);
+                    var msgTask = _client.ReceiveAsync(buffer, CancellationToken.None);
                     msgMeta = msgTask.Result;
 
                     switch (msgMeta.MessageType)
                     {
                         case WebSocketMessageType.Binary:
-                            Console.Error.WriteLine("received unexpected binary data");
+                            var bytes = new ArraySegment<byte>(buffer.Array, 0, msgMeta.Count);
+                            try { OnBinary?.Invoke(this, bytes.Array); } catch(Exception e) { Console.WriteLine(e); }
                             break;
                         case WebSocketMessageType.Close:
-                            try { OnDisconnected?.Invoke(this, EventArgs.Empty); } catch { }
+                            try { OnDisconnected?.Invoke(this, EventArgs.Empty); } catch(Exception e) { Console.WriteLine(e); }
                             return;
                         case WebSocketMessageType.Text:
-                            var message = ASCIIEncoding.ASCII.GetString(buffer.Array, 0, msgMeta.Count);
+                            var message = Encoding.ASCII.GetString(buffer.Array, 0, msgMeta.Count);
                             //to protect the loop from shitty user code
-                            try { OnMessageReceived?.Invoke(this, message); } catch { }
+                            try { OnText?.Invoke(this, message); } catch(Exception e) { Console.WriteLine(e); }
                             break;
                         default:
                             //???
@@ -109,12 +116,11 @@ namespace WindowsSocketCore
 
                 } while (msgMeta.MessageType != WebSocketMessageType.Close);
             }
-            catch { }
-
-            this.IsListening = false;
+            catch(Exception e) 
+            {
+                Console.WriteLine(e);
+            }
             this.Close().Wait();
         }
-
-
     }
 }
