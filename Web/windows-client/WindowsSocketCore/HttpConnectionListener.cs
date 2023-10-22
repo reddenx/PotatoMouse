@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 
@@ -10,7 +12,7 @@ namespace WindowsSocketCore
 {
     public delegate void RequestHandler(object sender, Request request, IResponseHandler response);
     public delegate void WebsocketHandler(object sender, Request request, IWebsocketConnection socket);
-    public interface IHttpListener
+    public interface IHttpConnectionListener
     {
         event RequestHandler OnRequest;
         event WebsocketHandler OnWebsocket;
@@ -19,7 +21,7 @@ namespace WindowsSocketCore
         void Stop();
     }
 
-    public class HttpListener : IHttpListener
+    public class HttpConnectionListener : IHttpConnectionListener
     {
         private TcpListener _listener = null;
         private Thread _acceptThread = null;
@@ -28,7 +30,7 @@ namespace WindowsSocketCore
         public event RequestHandler OnRequest;
         public event WebsocketHandler OnWebsocket;
 
-        public HttpListener() { }
+        public HttpConnectionListener() { }
 
         public void Start(IPEndPoint localEndpoint)
         {
@@ -38,10 +40,12 @@ namespace WindowsSocketCore
             try
             {
                 _listener = new TcpListener(localEndpoint);
+                _listener.Start();
                 StartAcceptLoop();
             }
-            catch
+            catch(Exception e)
             {
+                Console.WriteLine(e);
                 _listener = null;
                 KillAcceptLoop();
             }
@@ -62,7 +66,7 @@ namespace WindowsSocketCore
         private void KillAcceptLoop()
         {
             try { _acceptThread.Abort(); }
-            catch { }
+            catch(Exception e) { Console.WriteLine(2); }
         }
 
         private void StartAcceptLoop()
@@ -96,21 +100,30 @@ namespace WindowsSocketCore
 
                     var rawRequestStr = Encoding.UTF8.GetString(buffer, 0, readCount);
 
-                    var request = ParseRequest(rawRequestStr);
-                    var handler = new ResponseHandler(request, stream);
-                    this.OnRequest(this, request, handler);
-                    if (!handler.IsResolved)
+                    try
                     {
-                        handler.Resolve(500, "server did not handle request");
+                        var request = ParseRequest(rawRequestStr);
+                        var handler = new ResponseHandler(request, stream);
+                        this.OnRequest(this, request, handler);
+                        if (!handler.IsResolved)
+                        {
+                            handler.Resolve(500, "server did not handle request");
+                        }
+                        else if (handler.SpinOffWebRequest)
+                        {
+                            //todo parse out subprotocol from initial request headers
+                            var sock = new WebsocketConnection(request, WebSocket.CreateFromStream(stream, true, null, TimeSpan.FromSeconds(10)));
+                            this.OnWebsocket(this, request, sock);
+                        }
                     }
-                    else if (handler.SpinOffWebRequest)
+                    catch(Exception e)
                     {
-                        var sock = new WebsocketConnection(request, client);
-                        this.OnWebsocket(this, request, sock);
+                        Console.WriteLine(e);
+                        try { stream.Close(); } catch(Exception e2) { Console.WriteLine(e2); }
                     }
                 }
             }
-            catch { }
+            catch(Exception e) { Console.WriteLine(e); }
 
             if (_acceptLoopReEntry < ACCEPT_LOOP_ALLOWED_REENTRY)
             {
@@ -123,8 +136,23 @@ namespace WindowsSocketCore
 
         private Request ParseRequest(string rawRequestStr)
         {
-#error do the parsing
-            throw new NotImplementedException();
+            var lines = rawRequestStr.Split("\r\n");
+            var firstLineTokens = lines[0].Split(" ");
+
+            var headers = lines.Skip(1).TakeWhile(l => l != "").Select(h => 
+            {
+                var headerTokens = h.Split(":");
+                return new KeyValuePair<string,string>(headerTokens[0].Trim(), headerTokens[1].Trim());
+            }).ToArray();
+            var bodyLines = lines.SkipWhile(l => l != "").ToArray();
+            
+            return new Request()
+            {
+                Url = firstLineTokens[1],
+                Verb = firstLineTokens[0],
+                Headers = headers,
+                Body = bodyLines.FirstOrDefault(l => l != ""),
+            };
         }
     }
 }

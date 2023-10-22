@@ -10,7 +10,7 @@ namespace WindowsSocketCore
         public string Verb { get; internal set; }
         public KeyValuePair<string, string>[] Headers { get; internal set; }
 
-        public bool IsWebsicketUpgrade => Verb.ToUpper() == "GET" && Headers.Any(h => h.Key.ToUpper() == "Connection" && h.Key.ToUpper() == "upgrade");
-        public bool IsWebsiteRequest => Verb.ToUpper() == "GET" && !Headers.Any(h => h.Key.ToUpper() == "Connection" && h.Key.ToUpper() == "upgrade");
+        public bool IsWebsocketUpgrade => Verb.ToUpper() == "GET" && Headers.Any(h => h.Key.ToUpper() == "CONNECTION" && h.Value.ToUpper() == "UPGRADE");
+        public bool IsWebsiteRequest => Verb.ToUpper() == "GET" && !Headers.Any(h => h.Key.ToUpper() == "CONNECTION" && h.Value.ToUpper() == "UPGRADE");
     }
 }

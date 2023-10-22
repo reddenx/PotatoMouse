@@ -28,6 +28,7 @@ namespace WindowsSocketForms
          * */
 
         private readonly MessageHandler _handler;
+        private bool IsConnected => this.label1.Visible;
 
         public MainForm()
         {
@@ -39,11 +40,40 @@ namespace WindowsSocketForms
 
             GenerateQrCode();
 
-            var listener = new SiteConnectionHandler();
-            listener.OnConnect += (o, e) => ClientIsConnected();
-            listener.OnDisconnect += (o, e) => ClientDisconnected();
-            listener.OnText += (o, msg) => _handler.RunCommand(msg);
-            listener.Start();
+            var connections = new List<IClientConnection>();
+            var listener = new HttpConnectionListener();
+            listener.OnRequest += (s, req, resp) => 
+            {
+                if(req.IsWebsocketUpgrade)
+                    resp.WebsocketUpgrade();
+                else if(req.IsWebsiteRequest)
+                    resp.Resolve(200, HttpConsts.WEBSITE_BODY, HttpConsts.WEBSITE_HEADERS);
+                else
+                    resp.Resolve(404);
+            };
+            listener.OnWebsocket += (s, req, sock) => 
+            {
+                ClientIsConnected();
+                
+                sock.OnText += (s, msg) => 
+                {
+                    _handler.RunCommand(msg);
+                };
+                sock.OnDisconnected += (s, e) => 
+                {
+                    ClientDisconnected();
+                };
+                sock.OnBinary += (s, bytes) => { Console.WriteLine("got binary for some reason"); };
+                
+                connections.Add(new ClientConnection(sock));
+            };
+            listener.Start(new IPEndPoint(IPAddress.Any, 37075));
+
+            // var listener = new SiteConnectionHandler();
+            // listener.OnConnect += (o, e) => ClientIsConnected();
+            // listener.OnDisconnect += (o, e) => ClientDisconnected();
+            // listener.OnText += (o, msg) => _handler.RunCommand(msg);
+            // listener.Start();
         }
 
         private void GenerateQrCode()

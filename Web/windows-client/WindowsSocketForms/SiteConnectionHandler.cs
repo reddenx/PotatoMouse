@@ -148,7 +148,7 @@ namespace WindowsSocketForms
 
         private void SpinOffWebsocket(NetworkStream stream)
         {
-            var websock = new WebsocketClient(WebSocket.CreateFromStream(stream, true, null, Timeout.InfiniteTimeSpan));
+            var websock = new WebsocketClient(WebSocket.CreateFromStream(stream, true, null, TimeSpan.FromSeconds(10)));
             websock.OnDisconnected += (s, e) => { this.OnDisconnect(this, EventArgs.Empty); };
             websock.OnMessageReceived += (s, e) => { this.OnText(this, e); };
             websock.OnDisconnected += (s, e) =>
