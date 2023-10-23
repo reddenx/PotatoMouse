@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.30320.27
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsSocketCore", "WindowsSocketCore\WindowsSocketCore.csproj", "{4971E276-CF28-4BC3-8062-675346354597}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsSocketConsole", "WindowsSocketConsole\WindowsSocketConsole.csproj", "{C2199535-04C7-4285-86D4-CC6BB2B2F45A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsSocketForms", "WindowsSocketForms\WindowsSocketForms.csproj", "{99F88D50-BB33-4718-9D22-CBBF9C7703CB}"
 EndProject
 Global
@@ -31,18 +29,6 @@ Global
 		{4971E276-CF28-4BC3-8062-675346354597}.Release|x64.Build.0 = Release|Any CPU
 		{4971E276-CF28-4BC3-8062-675346354597}.Release|x86.ActiveCfg = Release|Any CPU
 		{4971E276-CF28-4BC3-8062-675346354597}.Release|x86.Build.0 = Release|Any CPU
-		{C2199535-04C7-4285-86D4-CC6BB2B2F45A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C2199535-04C7-4285-86D4-CC6BB2B2F45A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C2199535-04C7-4285-86D4-CC6BB2B2F45A}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{C2199535-04C7-4285-86D4-CC6BB2B2F45A}.Debug|x64.Build.0 = Debug|Any CPU
-		{C2199535-04C7-4285-86D4-CC6BB2B2F45A}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C2199535-04C7-4285-86D4-CC6BB2B2F45A}.Debug|x86.Build.0 = Debug|Any CPU
-		{C2199535-04C7-4285-86D4-CC6BB2B2F45A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C2199535-04C7-4285-86D4-CC6BB2B2F45A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C2199535-04C7-4285-86D4-CC6BB2B2F45A}.Release|x64.ActiveCfg = Release|Any CPU
-		{C2199535-04C7-4285-86D4-CC6BB2B2F45A}.Release|x64.Build.0 = Release|Any CPU
-		{C2199535-04C7-4285-86D4-CC6BB2B2F45A}.Release|x86.ActiveCfg = Release|Any CPU
-		{C2199535-04C7-4285-86D4-CC6BB2B2F45A}.Release|x86.Build.0 = Release|Any CPU
 		{99F88D50-BB33-4718-9D22-CBBF9C7703CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{99F88D50-BB33-4718-9D22-CBBF9C7703CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99F88D50-BB33-4718-9D22-CBBF9C7703CB}.Debug|x64.ActiveCfg = Debug|Any CPU
