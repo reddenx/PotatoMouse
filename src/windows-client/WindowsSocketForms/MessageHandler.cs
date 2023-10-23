@@ -132,7 +132,7 @@ namespace WindowsSocketForms
                         var keyString = cmd.Data;
                         //TODO come up with a decent definition of virtual and scan keys for emulation
                         //_keyboard.DoEvent(new KeyboardEventArgs(System.Windows.Forms.Keys., 0, true));
-                        switch(cmd.Data)
+                        switch (cmd.Data)
                         {
                             //because sendkeys doesnt have media buttons ugh
                             case "{MediaPreviousTrack}":
@@ -165,7 +165,7 @@ namespace WindowsSocketForms
         /// <summary>
         /// type of command send from the device
         /// </summary>
-        public CommandType Type;
+        public CommandType Type { get; set; }
 
         /// <summary>
         /// the button the command is relating to:
@@ -173,7 +173,7 @@ namespace WindowsSocketForms
         /// any string relates to keyboard commands
         /// move is x,y coords
         /// </summary>
-        public string Data;
+        public string Data {get;set;}
     }
 
     enum CommandType

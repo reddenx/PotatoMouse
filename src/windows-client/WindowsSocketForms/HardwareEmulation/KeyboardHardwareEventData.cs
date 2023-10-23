@@ -20,10 +20,10 @@ namespace SMT.Utilities.InputEvents.HardwareEvents
 
     internal struct KeyboardHardwareEventData
     {
-        public int vkCode;
-        public int scanCode;
-        public int flags;
-        public uint time;
-        public IntPtr dwExtraInfo;
+        public int vkCode { get; set; }
+        public int scanCode { get; set; }
+        public int flags { get; set; }
+        public uint time { get; set; }
+        public IntPtr dwExtraInfo { get; set; }
     }
 }
