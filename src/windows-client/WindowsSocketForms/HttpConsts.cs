@@ -10,6 +10,7 @@ namespace WindowsSocketForms
          * - npm run build on client app
          * - replace " with "" in your favorite editor
          * - copy new script tag over existing one below
+         * - remove references to and .js files and mapping files (causes console errors and mobile firefox issues)
          */
 
         public static readonly KeyValuePair<string, string>[] WEBSITE_HEADERS = new KeyValuePair<string, string>[]
