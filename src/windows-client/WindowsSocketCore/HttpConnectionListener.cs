@@ -87,6 +87,8 @@ namespace WindowsSocketCore
                     var client = _listener.AcceptTcpClient();
                     var stream = client.GetStream();
                     var buffer = new byte[READ_BUFFER_SIZE];
+                    
+#warning TODO: this seems to get stuck often, add timeout or break into async code so another client can be accepted if this fails.
                     var readCount = stream.Read(buffer);
                     if (readCount == 0)
                     {

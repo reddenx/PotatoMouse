@@ -1,5 +1,12 @@
 <template>
     <div class="container">
+        <div v-if="isDebugMode">
+            <div>padState: {{mousepad.currentState.name}}</div>
+            <div>viewConn: {{connectionStatus}}</div>
+            <div>libConn: {{connection.connected}}</div>
+            <div>socketState: {{connection.socket?.readyState}}</div>
+        </div>
+        
         <div v-if="connectionStatus == 'disconnected'">
             <button
                 type="button"
@@ -14,9 +21,6 @@
         <div v-if="connectionStatus == 'connected'">
             <div class="control-container">
                 <div class="control-row">
-                    <span v-if="isDebugMode">{{
-                        mousepad.currentState.name
-                    }}</span>
                     <input
                         type="text"
                         class="send-input"

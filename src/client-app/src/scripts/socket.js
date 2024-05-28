@@ -28,7 +28,14 @@ export class Connection {
         this.connected = true;
         this.busy = true;
 
-        this.socket = new WebSocket(host);
+        try {
+            this.socket = new WebSocket(host);
+        }
+        catch {
+            this.busy = false;
+            this.connected = false;
+            return;
+        }
         this.socket.addEventListener('open', event => {
             console.log('open', event);
             this.busy = false;
